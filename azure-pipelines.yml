@@ -1,0 +1,278 @@
+# Node.js with Angular
+# Build a Node.js project that uses Angular.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+- develop
+
+parameters:
+  - name: environments
+    type: object
+    default: ["Dev"]
+    #default: ["Dev", "Hom", "Prod"]
+
+stages:
+- stage: Build
+  displayName: 'Build ProcurementFlow Front'
+  jobs:
+  - job:
+
+    pool:
+     vmImage: ubuntu-latest
+
+    variables:
+      environmentName: ${{ parameters.environments[0] }}
+
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '18.x'
+      displayName: 'Install Node.js'
+
+    - script: |
+        npm install -g @angular/cli
+        npm install --ignore-platform
+      displayName: 'npm install'
+
+    - script: |
+        set -e
+        echo "Selected environment: ${{ variables.environmentName }}"
+        if [ "${{ variables.environmentName }}" == "Dev" ]; then
+          cp src/environments/environment.dev.ts src/environments/environment.ts
+        elif [ "${{ variables.environmentName }}" == "Hom" ]; then
+          cp src/environments/environment.hom.ts src/environments/environment.ts
+        elif [ "${{ variables.environmentName }}" == "Prod" ]; then
+          cp src/environments/environment.prod.ts src/environments/environment.ts
+        else
+          echo "Unrecognized environment: ${{ variables.environmentName }}"
+          exit 1
+        fi
+      displayName: 'Replace environment file'
+
+    - script: |
+        ng build --base-href /atc/procurement-flow/
+      displayName: 'Build Angular Project'
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: './dist/procurement-flow/browser'
+        Contents: '**'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: '$(Build.ArtifactStagingDirectory)'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        replaceExistingArchive: true
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+- stage: Publish
+  displayName: 'Publish App In IIS'
+  jobs:
+  - ${{ if containsValue(parameters.environments, 'Dev') }}:
+    - deployment: DeployWebApp1
+      displayName: 'Deploy Web App - Server Dev01'
+      environment:
+        name: 'DEV'
+        resourceName: HLMDATC-01-INST-AT
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: DownloadBuildArtifacts@1
+                inputs:
+                  buildType: 'current'
+                  downloadType: 'single'
+                  artifactName: 'drop'
+                  downloadPath: '$(System.ArtifactsDirectory)'
+
+              - task: IISWebAppDeploymentOnMachineGroup@0
+                inputs:
+                  WebSiteName: 'Default Web Site'
+                  VirtualApplication: 'ATC/ProcurementFlow'
+                  Package: '$(System.ArtifactsDirectory)/**/*.zip'
+
+    - deployment: DeployWebApp2
+      displayName: 'Deploy Web App - Server Dev02'
+      environment:
+        name: 'DEV'
+        resourceName: HLMDATC-02-INST-AT
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: DownloadBuildArtifacts@1
+                inputs:
+                  buildType: 'current'
+                  downloadType: 'single'
+                  artifactName: 'drop'
+                  downloadPath: '$(System.ArtifactsDirectory)'
+
+              - task: IISWebAppDeploymentOnMachineGroup@0
+                inputs:
+                  WebSiteName: 'Default Web Site'
+                  VirtualApplication: 'ATC/ProcurementFlow'
+                  Package: '$(System.ArtifactsDirectory)/**/*.zip'
+
+  - ${{ if containsValue(parameters.environments, 'Hom') }}:
+    - deployment: DeployWebApp1
+      displayName: 'Deploy Web App - Server Hom01'
+      environment:
+        name: 'HOM'
+        resourceName: HLMHATC-01-INST-AT
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: DownloadBuildArtifacts@1
+                inputs:
+                  buildType: 'current'
+                  downloadType: 'single'
+                  artifactName: 'drop'
+                  downloadPath: '$(System.ArtifactsDirectory)'
+
+              - task: IISWebAppDeploymentOnMachineGroup@0
+                inputs:
+                  WebSiteName: 'Default Web Site'
+                  VirtualApplication: 'ATC/ProcurementFlow'
+                  Package: '$(System.ArtifactsDirectory)/**/*.zip'
+
+    - deployment: DeployWebApp2
+      displayName: 'Deploy Web App - Server Hom02'
+      environment:
+        name: 'HOM'
+        resourceName: HLMHATC-02-INST-AT
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: DownloadBuildArtifacts@1
+                inputs:
+                  buildType: 'current'
+                  downloadType: 'single'
+                  artifactName: 'drop'
+                  downloadPath: '$(System.ArtifactsDirectory)'
+
+              - task: IISWebAppDeploymentOnMachineGroup@0
+                inputs:
+                  WebSiteName: 'Default Web Site'
+                  VirtualApplication: 'ATC/ProcurementFlow'
+                  Package: '$(System.ArtifactsDirectory)/**/*.zip'
+
+  - ${{ if containsValue(parameters.environments, 'Prod') }}:
+    - deployment: DeployWebAppProd1
+      displayName: 'Deploy Web App - Server Prod01'
+      environment:
+        name: 'PROD'
+        resourceName: HLMPATC-01-INST-AT
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: DownloadBuildArtifacts@1
+                inputs:
+                  buildType: 'current'
+                  downloadType: 'single'
+                  artifactName: 'drop'
+                  downloadPath: '$(System.ArtifactsDirectory)'
+
+              - task: IISWebAppDeploymentOnMachineGroup@0
+                inputs:
+                  WebSiteName: 'Default Web Site'
+                  VirtualApplication: 'ATC/ProcurementFlow'
+                  Package: '$(System.ArtifactsDirectory)/**/*.zip'
+
+    - deployment: DeployWebAppProd2
+      displayName: 'Deploy Web App - Server Prod02'
+      environment:
+        name: 'PROD'
+        resourceName: HLMPATC-02-INST-AT
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: DownloadBuildArtifacts@1
+                inputs:
+                  buildType: 'current'
+                  downloadType: 'single'
+                  artifactName: 'drop'
+                  downloadPath: '$(System.ArtifactsDirectory)'
+
+              - task: IISWebAppDeploymentOnMachineGroup@0
+                inputs:
+                  WebSiteName: 'Default Web Site'
+                  VirtualApplication: 'ATC/ProcurementFlow'
+                  Package: '$(System.ArtifactsDirectory)/**/*.zip'
+
+    - deployment: DeployWebAppProd3
+      displayName: 'Deploy Web App - Server Prod03'
+      environment:
+        name: 'PROD'
+        resourceName: HLMPATC-03-INST-AT
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: DownloadBuildArtifacts@1
+                inputs:
+                  buildType: 'current'
+                  downloadType: 'single'
+                  artifactName: 'drop'
+                  downloadPath: '$(System.ArtifactsDirectory)'
+
+              - task: IISWebAppDeploymentOnMachineGroup@0
+                inputs:
+                  WebSiteName: 'Default Web Site'
+                  VirtualApplication: 'ATC/ProcurementFlow'
+                  Package: '$(System.ArtifactsDirectory)/**/*.zip'
+
+    - deployment: DeployWebAppProd4
+      displayName: 'Deploy Web App - Server Prod04'
+      environment:
+        name: 'PROD'
+        resourceName: HLMPATC-04-INST-AT
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: DownloadBuildArtifacts@1
+                inputs:
+                  buildType: 'current'
+                  downloadType: 'single'
+                  artifactName: 'drop'
+                  downloadPath: '$(System.ArtifactsDirectory)'
+
+              - task: IISWebAppDeploymentOnMachineGroup@0
+                inputs:
+                  WebSiteName: 'Default Web Site'
+                  VirtualApplication: 'ATC/ProcurementFlow'
+                  Package: '$(System.ArtifactsDirectory)/**/*.zip'
+
+    - deployment: DeployWebAppProd5
+      displayName: 'Deploy Web App - Server Prod05'
+      environment:
+        name: 'PROD'
+        resourceName: HLMPATC-05-INST-AT
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: DownloadBuildArtifacts@1
+                inputs:
+                  buildType: 'current'
+                  downloadType: 'single'
+                  artifactName: 'drop'
+                  downloadPath: '$(System.ArtifactsDirectory)'
+
+              - task: IISWebAppDeploymentOnMachineGroup@0
+                inputs:
+                  WebSiteName: 'Default Web Site'
+                  Package: '$(System.ArtifactsDirectory)/**/*.zip'

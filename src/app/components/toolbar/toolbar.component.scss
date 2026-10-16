@@ -1,0 +1,200 @@
+:host ::ng-deep .p-toolbar-group-start .p-button {
+  background-color: #0F4C5C !important;
+  border-color: #0F4C5C !important;
+  height: 36px;
+  width: 36px;
+  border-radius: 50%;
+}
+
+.spacer {
+  flex-grow: 1;
+}
+
+:host ::ng-deep .p-toolbar {
+  width: Fill (1, 818px)px;
+  height: Fixed (74px)px;
+  padding: 12px 40px 12px 24px;
+  gap: 64px;
+  border: 0px 0px 1px 0px;
+  opacity: 0px;
+  margin-left: -5px;
+}
+
+:host ::ng-deep .p-avatar {
+  width: 48px;
+  height: 48px
+}
+
+.button-end-position {
+  margin-left: -10%;
+}
+
+.p-toolbar-group-end {
+  display: flex;
+  align-items: center;
+
+  .button-group {
+    display: flex;
+    align-items: center;
+    margin-left: -200px !important;
+  }
+
+  .avatar-group {
+    margin-left: 100px;
+  }
+
+  .ml-auto {
+    margin-left: auto;
+  }
+}
+
+.user-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.2;
+
+  .user-name {
+    font-weight: 600;
+    color: #0f4c5c;
+  }
+
+  .user-email {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+}
+
+.toolbar-brand {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+
+  img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+  }
+
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}
+
+:host ::ng-deep .p-toolbar {
+  position: relative;
+  margin-left: 0;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.p-toolbar-group-end {
+  gap: 0;
+}
+
+.toolbar-identity {
+  margin-right: 16px;
+}
+
+:host ::ng-deep .toolbar-burger {
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}
+
+.profile-static {
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 1024px) {
+  .profile-trigger {
+    display: none;
+  }
+
+  .profile-static {
+    display: inline-flex;
+  }
+}
+
+.profile-trigger {
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid #0f4c5c;
+    outline-offset: 2px;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .toolbar-identity,
+  .toolbar-signout {
+    display: none;
+  }
+}
+
+.profile-menu {
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+
+  &__identity {
+    display: flex;
+    flex-direction: column;
+    padding: 4px 4px 12px;
+    border-bottom: 1px solid #e4eaed;
+  }
+
+  &__name {
+    font-weight: 600;
+    color: #0f4c5c;
+  }
+
+  &__email {
+    font-size: 0.75rem;
+    color: #6b7280;
+    overflow-wrap: anywhere;
+  }
+
+  &__logout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 44px;
+    margin-top: 6px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #0f4c5c;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background: rgba(15, 76, 92, 0.08);
+      outline: none;
+    }
+  }
+}
+
+:host ::ng-deep .profile-menu-panel.p-overlaypanel {
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}

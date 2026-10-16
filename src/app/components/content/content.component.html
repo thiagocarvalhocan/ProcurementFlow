@@ -1,0 +1,56 @@
+<div class="content-background flex flex-col gap-2">
+  <div class="flex flex-col lg:flex-row">
+    <div class="flex-1 pb-4 w-full">
+      <div class="flex flex-col sm:flex-row justify-between">
+        @if (lastItem?.name) {
+          <div class="font-content-title">{{ lastItem.name }}</div>
+        }
+        <app-accessibility-controls
+        (fontChange)="onFontChange($event)"
+        (toggleSignLanguage)="handleSignLanguage()"
+        (toggleContrast)="handleContrast()"
+        ></app-accessibility-controls>
+      </div>
+      <div class="margin">
+        <div class="inline-flex items-center flex-col md:flex-row">
+          <div class="inline-flex items-center">
+            @if(showBackButton){
+              <button (click)="back()" class="cursor-pointer items-center flex flex-nowrap">
+                <app-icon-arrowback
+                class="cursor-pointer"
+                size="20"
+                ></app-icon-arrowback>
+                <span class="ml-2 cursor-pointer "
+                  >Back</span
+                >
+              </button>
+              <span class="mx-2 select-none" aria-hidden="true">|</span>
+            }
+            @if (!isHome) {
+              <app-icon-init></app-icon-init>
+              <span class="ml-2">Home</span>
+            }
+          </div>
+          <div
+            *ngFor="let item of subHeader; let last = last"
+            class="flex items-center"
+          >
+           @if (!isHome) {
+              <div class="mx-2" aria-hidden="true">
+                <app-icon-arrowright></app-icon-arrowright>
+              </div>
+            }
+
+            <ng-container
+              *appDynamicIcon="{
+                component: item.icon,
+                inputs: { size: '16', color: 'black' }
+              }"
+            ></ng-container>
+            <span class="ml-2 text-nowrap">{{ item.name }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

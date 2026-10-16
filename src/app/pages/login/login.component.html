@@ -1,0 +1,54 @@
+<app-auth-layout-content [title]="'Sign in'" [description]="'Welcome to ProcurementFlow. Pick a demo account to explore the offline build.'">
+  <div class="mt-6 flex flex-col gap-4" [formGroup]="loginForm">
+    <label class="flex flex-col gap-2">
+      <span class="font-description-300 text-[#0F4C5C]">E-mail</span>
+      <input
+        pInputText
+        type="email"
+        formControlName="email"
+        autocomplete="username"
+        placeholder="admin@procurementflow.demo"
+        [disabled]="loginInProgress"
+        (keyup.enter)="onSubmit()"
+      />
+    </label>
+
+    <label class="flex flex-col gap-2">
+      <span class="font-description-300 text-[#0F4C5C]">Password</span>
+      <input
+        pInputText
+        type="password"
+        formControlName="password"
+        autocomplete="current-password"
+        placeholder="Your demo password"
+        [disabled]="loginInProgress"
+        (keyup.enter)="onSubmit()"
+      />
+    </label>
+
+    <p class="font-description-300 text-[#B3261E]" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    <app-button-login (click)="onSubmit()"></app-button-login>
+
+    <p class="font-description-300 text-[#8E8E8E]" *ngIf="loginInProgress">Signing in...</p>
+
+    <div class="mt-2 flex flex-col gap-2">
+      <span class="font-description-300 text-[#0F4C5C]">Demo accounts</span>
+
+      <button
+        *ngFor="let account of accounts"
+        type="button"
+        class="text-left p-3 rounded-lg border border-[#0F4C5C33] hover:bg-[#0F4C5C0f]"
+        [disabled]="loginInProgress"
+        (click)="useAccount(account)"
+      >
+        <span class="font-description-300 block text-[#0F4C5C]">{{ account.label }}</span>
+        <span class="font-description-300 block text-[#8E8E8E]">{{ account.description }}</span>
+        <span class="font-description-300 block text-[#8E8E8E]">
+          {{ account.email }} / {{ account.password }}
+        </span>
+      </button>
+    </div>
+  </div>
+</app-auth-layout-content>
+

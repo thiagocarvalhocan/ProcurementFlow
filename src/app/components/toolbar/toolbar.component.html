@@ -1,0 +1,80 @@
+<p-toolbar>
+  <div class="p-toolbar-group-start">
+    <p-button
+      (click)="toggleSidebar()"
+      *ngIf="!isExpanded"
+      styleClass="toolbar-burger"
+      pTooltip="Menu"
+      tooltipPosition="bottom"
+      tooltipStyleClass="custom-tooltip"
+      ariaLabel="Open navigation menu"
+    >
+      <ng-template pTemplate="icon">
+        <app-icon-menu-3 color="currentColor" size="20px" />
+      </ng-template>
+    </p-button>
+  </div>
+
+  <div class="toolbar-brand" aria-hidden="true">
+    <img ngSrc="logo.png" alt="" width="40" height="40" />
+  </div>
+
+  <div class="p-toolbar-group-end">
+    <div class="user-identity toolbar-identity">
+      <span class="user-name">{{ userName }}</span>
+      <span class="user-email" *ngIf="email">{{ email }}</span>
+    </div>
+
+    <button
+      type="button"
+      class="profile-trigger"
+      pTooltip="Profile"
+      tooltipPosition="bottom"
+      tooltipStyleClass="custom-tooltip"
+      (click)="profileMenu.toggle($event)"
+      aria-haspopup="menu"
+      aria-label="Account menu"
+    >
+      <app-icon-profile-photo></app-icon-profile-photo>
+    </button>
+
+    <span class="profile-static" aria-hidden="true">
+      <app-icon-profile-photo></app-icon-profile-photo>
+    </span>
+
+    <p-button
+      class="toolbar-signout ml-1"
+      [rounded]="true"
+      [text]="true"
+      severity="secondary"
+      pTooltip="Sign out"
+      tooltipPosition="bottom"
+      tooltipStyleClass="custom-tooltip"
+      ariaLabel="Sign out"
+      (onClick)="logout()"
+    >
+      <ng-template pTemplate="icon">
+        <app-icon-logout color="currentColor" size="20px" />
+      </ng-template>
+    </p-button>
+
+    <p-overlayPanel #profileMenu styleClass="profile-menu-panel">
+      <div class="profile-menu" role="menu">
+        <div class="profile-menu__identity">
+          <span class="profile-menu__name">{{ userName }}</span>
+          <span class="profile-menu__email" *ngIf="email">{{ email }}</span>
+        </div>
+        <button
+          type="button"
+          class="profile-menu__logout"
+          role="menuitem"
+          (click)="logoutFromMenu(profileMenu)"
+        >
+          <app-icon-logout color="currentColor" size="16px" aria-hidden="true" />
+          <span>Sign out</span>
+        </button>
+      </div>
+    </p-overlayPanel>
+  </div>
+</p-toolbar>
+<p-toast></p-toast>

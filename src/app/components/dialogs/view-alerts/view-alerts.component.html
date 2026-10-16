@@ -1,0 +1,54 @@
+<p-dialog header="" modal="true" [(visible)]="visible" resizable="false" draggable="false" closable="false"
+  closeOnEscape="false" class="p-dialog-v2" styleClass="w-[65%]">
+  <p-header>
+    <div>View material or service alerts</div>
+    <div class="container-button-close">
+      <button type="button" pButton (click)="onClose()">
+        <app-icon-close-square />
+      </button>
+    </div>
+  </p-header>
+
+  <hr />
+
+  <main>
+    <form [formGroup]="alertForm">
+      <div class="custom-alert">
+        <div class="grid grid-cols-1 gap-4 p-0">
+          <p-card>
+            <ng-container *ngIf="alerts.some(isAlertValid); else emptyMessage">
+              @for (item of alerts; track item.alertTypeName) {
+              @if (isAlertValid(item)) {
+              <div class="col-span-1 items-center gap-4">
+                <label class="font-bold-body">
+                  {{ item.alertTypeName }}:
+                </label>
+                <br />
+                @for (alert of item.alerts; track alert) {
+                <li class="ml-6">
+                  {{ alert }}
+                </li>
+                }
+              </div>
+              }
+              }
+            </ng-container>
+            <ng-template #emptyMessage>
+              <div class=" text-gray-500 p-4">
+                There is no active alert linked to this material or service to display.
+              </div>
+            </ng-template>
+          </p-card>
+        </div>
+      </div>
+    </form>
+  </main>
+
+  <hr />
+
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="Close" severity="danger" text="true" styleClass="custom-closesquare" (click)="onClose()">
+      <app-icon-close-square size="24" color="#0F4C5C" />
+    </p-button>
+  </p-footer>
+</p-dialog>

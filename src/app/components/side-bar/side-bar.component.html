@@ -1,0 +1,88 @@
+<div class="container h-screen flex">
+  <aside
+    [ngClass]="{ expanded: isExpanded, collapsed: !isExpanded }"
+    class="flex flex-col h-full"
+  >
+    <div class="logo">
+      <a routerLink="/">
+        <img ngSrc="logo.png" alt="Logo" width="50" height="50" class="rounded" />
+      </a>
+    </div>    
+    <nav class="flex-1 sidebar-nav">
+      <div class="sidebar-nav-scroll">
+        <ul>
+          <li
+            *ngFor="let item of navItems; let i = index"
+            class="nav-button"
+            [ngClass]="{
+              active: isRouteActive(item),
+              'nav-sub-item-button': item.subItems != undefined,
+              'hover-expanded': !isExpanded && !isMobileOpen && hoveredItemIndex === i,
+              'wave-prev': !isExpanded && !isMobileOpen && hoveredItemIndex === i - 1,
+              'wave-next': !isExpanded && !isMobileOpen && hoveredItemIndex === i + 1
+            }"
+            (mouseenter)="hoveredItemIndex = i"
+            (mouseleave)="hoveredItemIndex = null"
+          >
+            <a
+              class="full-link"
+              [routerLink]="item.subItems ? undefined : item.route"
+              (click)="
+                item.subItems == undefined
+                  ? onClick(item)
+                  : subMenuItems.toggle($event)
+              "
+            >
+              <ng-container *ngIf="isRouteActive(item); else inactiveIcon">
+                <ng-container
+                  *appDynamicIcon="{
+                    component: item.icon,
+                    inputs: { size: '24', color: 'white' }
+                  }"
+                ></ng-container>
+      
+                <span
+                  *ngIf="isExpanded || isMobileOpen || hoveredItemIndex === i"
+                  style="color: white"
+                  class="text-nowrap ml-1"
+                >
+                  {{ item.name }}
+                </span>
+              </ng-container>
+      
+              <ng-template #inactiveIcon>
+                <ng-container
+                  *appDynamicIcon="{
+                    component: item.icon,
+                    inputs: { size: '24' }
+                  }"
+                ></ng-container>
+      
+                <span *ngIf="isExpanded || isMobileOpen || hoveredItemIndex === i" class="text-nowrap ml-1">
+                  {{ item.name }}
+                </span>
+              </ng-template>
+            </a>
+      
+            <p-overlayPanel #subMenuItems [autoZIndex]="false">
+              <ul [style]="{ gap: '0px' }">
+                <li
+                  *ngFor="let subItem of item.subItems"
+                  class="nav-button nav-sub-item-button"
+                >
+                  <a
+                    (click)="onClick(subItem, item); subMenuItems.hide()"
+                    [routerLink]="item.route + subItem.route"
+                    class="full-link"
+                  >
+                    <p>{{ subItem.name }}</p>
+                  </a>
+                </li>
+              </ul>
+            </p-overlayPanel>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </aside>
+</div>

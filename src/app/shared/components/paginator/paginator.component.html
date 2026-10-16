@@ -1,0 +1,32 @@
+@if (totalItems > 0) {
+  <div
+    class="grid lg:flex gap-4 grid-cols-12 text-[#5A5C69] mt-4"
+  >
+    <div class="col-span-12 lg:w-full text-center lg:text-left">
+      {{ first + 1 }} - {{ last }} of {{ totalItems }} items
+    </div>
+    <div class="col-span-12 grid lg:w-full lg:flex gap-4 lg:justify-end">
+      <p-dropdown
+        [options]="options"
+        optionLabel="label"
+        optionValue="value"
+        [(ngModel)]="rows"
+        (ngModelChange)="onChangeRows($event)"
+        styleClass="w-full"
+        [appendTo]="'body'"
+      >
+        <ng-template pTemplate="dropdownicon">
+          <app-icon-chevron-down color="currentColor" size="16px" />
+        </ng-template>
+      </p-dropdown>
+      <p-paginator
+        (onPageChange)="onPageChange($event)"
+        [first]="first"
+        [rows]="rows"
+        [totalRecords]="totalItems"
+        [showPageLinks]="true"
+        styleClass="px-0 py-3 max-h-[40px] content-center flex-nowrap whitespace-nowrap"
+      />
+    </div>
+  </div>
+}

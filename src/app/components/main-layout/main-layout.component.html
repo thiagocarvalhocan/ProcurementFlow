@@ -1,0 +1,21 @@
+<div class="main-container h-screen flex flex-col fixed">
+  <app-side-bar
+    [isMobileOpen]="isMobileNavOpen"
+    [class.mobile-open]="isMobileNavOpen"
+  ></app-side-bar>
+
+  <div
+    *ngIf="isMobileNavOpen"
+    class="mobile-nav-backdrop lg:hidden"
+    (click)="closeMobileNav()"
+    aria-hidden="true"
+  ></div>
+
+  <div class="content-container flex-1 flex flex-col" [class.nav-open]="isMobileNavOpen">
+    <app-toolbar></app-toolbar>
+    <div class="content-padding flex-1 overflow-auto">
+      <app-content></app-content>
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

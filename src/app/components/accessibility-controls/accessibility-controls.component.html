@@ -1,0 +1,51 @@
+<div class="flex flex-col sm:flex-row space-x-3">
+
+  <div class="flex items-center">
+    <button
+      type="button"
+      class="flex items-center text-sm"
+      aria-label="Adjust font size"
+      (click)="onFontClick('reset')"
+    >
+      <span class="text-lg">A</span>
+      <button 
+        type="button" 
+        aria-label="Decrease font size"
+        class="ml-1"
+        (click)="onFontClick('decrease')"
+      >
+        A-
+      </button>
+      <button 
+        type="button" 
+        aria-label="Increase font size"
+        class="ml-1"
+        (click)="onFontClick('increase')"
+      >
+        A+
+      </button>
+      <span class="ml-1">Font</span>
+    </button>
+  </div>
+
+  <button
+    type="button"
+    class="flex items-center text-sm"
+    aria-label="Enable sign language"
+    (click)="onSignLanguageClick()"
+  >
+    <app-icon-asl class="mr-2"></app-icon-asl>
+    Sign language
+  </button>
+
+  <button
+    type="button"
+    class="flex items-center text-sm"
+    aria-label="Enable high contrast"
+    (click)="onContrastClick()"
+  >
+    <app-icon-contrast class="mr-2"></app-icon-contrast>
+    Contrast
+  </button>
+
+</div>

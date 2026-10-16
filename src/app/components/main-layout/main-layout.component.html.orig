@@ -1,0 +1,15 @@
+<<<<<<< HEAD
+<div class="main-container h-screen flex flex-col">
+  <app-side-bar></app-side-bar>
+=======
+<div class="main-container h-screen flex flex-col fixed">
+  <app-side-bar (selectChange)="onSelectChange($event)"></app-side-bar>
+>>>>>>> develop
+  <div class="content-container flex-1 flex flex-col">
+    <app-toolbar></app-toolbar>
+    <div class="content-padding flex-1 overflow-auto">
+      <app-content></app-content>
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

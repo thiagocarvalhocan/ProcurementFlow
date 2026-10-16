@@ -1,0 +1,391 @@
+<p-toast></p-toast>
+
+<div class="ms-4 mb-4 header">
+  <strong class="text-[1.5rem]">System Users</strong>
+</div>
+
+<p-card>
+  <div class="flex flex-col lg:flex-row md:justify-between gap-4">
+    <div class="flex flex-col md:flex-row gap-4 w-full">
+      <form *ngIf="userPermissionService.hasPermission('Users', 'View')" [formGroup]="formSearch"
+        (submit)="searchProfilesByKeyword()">
+        <app-search-input [model]="formSearch.get('searchTerm')?.value"
+          (modelChange)="formSearch.get('searchTerm')?.setValue($event)" (search)="searchProfilesByKeyword()"
+          placeholder="Search by employee ID, name or profile"></app-search-input>
+      </form>
+    </div>
+    <div class="flex flex-col sm:flex-row lg:min-w-[250px]">
+      <p-button label="Export XLS" [outlined]="true" class="w-full md:min-w-[150px] float-end text-nowrap"
+        styleClass="w-full custom-cleanButton border-[#0F4C5C] text-[#0F4C5C] hover:bg-[#0F4C5C12] gap-1"
+        (click)="exportExcel()" [disabled]="
+              !userPermissionService.hasPermission('Users', 'View')
+            ">
+        <app-icon-excel-export color="#0F4C5C" size="24px" />
+      </p-button>
+    </div>
+    <div class="w-full text-center lg:w-auto">
+      <p-button label="Add" styleClass="custom-addNewButton min-w-[150px] float-end w-full justify-center"
+        (click)="openUserModal('add', null)" [disabled]="!userPermissionService.hasPermission('Users', 'Create')">
+        <app-icon-add-square color="white" size="24px" />
+      </p-button>
+    </div>
+  </div>
+</p-card>
+
+<br />
+
+<p-card>
+  <p-table #tb *ngIf="userPermissionService.hasPermission('Users', 'View')" responsiveLayout="stack"
+    [breakpoint]="'960px'" [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="getUsers($event)" [lazy]="true"
+    [value]="users" [paginator]="false" [rows]="rows" [first]="first" [totalRecords]="totalItems"
+    [rowsPerPageOptions]="[10, 20, 30, 40, 50]" [customSort]="true">
+    <ng-template pTemplate="header">
+      <tr>
+        @for (item of userTableHeaders; track item.title) { @if (item.key) {
+        <th pTooltip="Sort" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [pSortableColumn]="item.key"
+          class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}<p-sortIcon [field]="item.key" />
+          </div>
+        </th>
+        } @else {
+        <th class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}
+          </div>
+        </th>
+        } }
+        <th class="text-center min-w-[60px] p-2">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-user>
+      <tr>
+        <td>{{ user.employeeId }}</td>
+        <td>{{ user.name }}</td>
+        <td>{{ user.jobTitle }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ getProfilesInline(user.profiles) }}</td>
+        <td>
+          <p-tag [value]="user.isActive ? 'Active' : 'Inactive'" [severity]="getUserStatusSeverity(user.isActive)" />
+        </td>
+        <td>
+          <div class="flex justify-center items-center">
+            <p-button pTooltip="View" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" text="true"
+              styleClass="custom-tablebutton" (click)="openUserModal('view', user)" [disabled]="
+                !userPermissionService.hasPermission('Users', 'View')
+              ">
+              <app-icon-view width="35" height="34" />
+            </p-button>
+
+            <p-button pTooltip="Edit" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" text="true"
+              styleClass="custom-tablebutton" (click)="openUserModal('edit', user)" [disabled]="
+                !userPermissionService.hasPermission('Users', 'Edit')
+              ">
+              <app-icon-edit2 />
+            </p-button>
+
+            <p-button *ngIf="user.isActive" pTooltip="Deactivate" tooltipPosition="bottom"
+              tooltipStyleClass="custom-tooltip" text="true" styleClass="custom-tablebutton"
+              (click)="openDisableUserModal(user)" [disabled]="
+                !userPermissionService.hasPermission('Users', 'Edit')
+              ">
+              <app-icon-user-x color="#bd2130" size="20px" />
+            </p-button>
+
+            <p-button *ngIf="!user.isActive" pTooltip="Activate" tooltipPosition="bottom"
+              tooltipStyleClass="custom-tooltip" text="true" styleClass="custom-tablebutton"
+              (click)="openEnableUserModal(user)" [disabled]="
+                !userPermissionService.hasPermission('Users', 'Edit')
+              ">
+              <app-icon-user-check color="#12684c" size="20px" />
+            </p-button>
+
+            <p-button pTooltip="History" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" text="true"
+              styleClass="custom-tablebutton" (click)="openHistoryModal(user)" [disabled]="
+                !userPermissionService.hasPermission('Users', 'View')
+              ">
+              <app-icon-history color="#000" size="20px" />
+            </p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="footer" let-users> </ng-template>
+    <ng-template pTemplate="paginatorleft">
+      <span>{{ totalItems }} items</span>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7">No records found</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<app-paginator [first]="first" [last]="last" [totalItems]="totalItems" [rows]="rows" [options]="options"
+  (rowsChange)="onRowsChange($event)" (pageChange)="getUsers($event)"></app-paginator>
+
+<p-dialog header="" modal="true" [(visible)]="isUserModalVisible" baseZIndex="0" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" [style]="{ width: '80%', overflow: 'hidden' }" class="p-dialog-v2">
+  <p-header>
+    <div class="text-xl">{{ getModalTitle() }}</div>
+    <div class="container-button-close">
+      <button type="button" pButton (click)="
+          userModalMode !== 'view'
+            ? openConfirmCancelSaveUserModal()
+            : closeUserModal()
+        ">
+        <app-icon-close-square />
+      </button>
+    </div>
+  </p-header>
+  <hr />
+  <main>
+    <div class="subtitle-modal" *ngIf="userModalMode === 'add'">
+      User search
+    </div>
+
+    <div class="grid grid-cols-12 mt-3" *ngIf="userModalMode === 'add'">
+      <div class="col-span-12">
+        <p-autoComplete [(ngModel)]="textAutoComplete" placeholder="Search by employee ID, name or e-mail..."
+          (onClear)="clearDirectoryUserSearch($event)" [suggestions]="directoryUserSuggestions"
+          (completeMethod)="searchDirectoryUsers($event)" (onSelect)="selectDirectoryUser($event)" field="name"
+          appendTo="body" [style]="{ width: '100%' }" [inputStyle]="{ width: '100%' }"
+          [emptyMessage]="'No results found'" [minLength]="3" [maxlength]="100" />
+      </div>
+    </div>
+
+    <div class="mt-4" *ngIf="selectedUser">
+      <div class="subtitle-modal mb-6">Basic information</div>
+      <div class="grid grid-cols-2 sm:flex sm:flex-row gap-8 justify-between mb-4 ml-2">
+        <div>
+          <div class="subtitle2-modal">Employee ID</div>
+          <span class="ml-1"> {{ selectedUser.employeeId ?? "-" }} </span>
+        </div>
+        <div>
+          <div class="subtitle2-modal">Full name</div>
+          <span class="ml-1"> {{ selectedUser.name ?? "-" }} </span>
+        </div>
+        <div>
+          <div class="subtitle2-modal">Job title</div>
+          <span class="ml-1"> {{ selectedUser.jobTitle ?? "-" }} </span>
+        </div>
+        <div>
+          <div class="subtitle2-modal">E-mail</div>
+          <span class="ml-1"> {{ selectedUser.email ?? "-" }} </span>
+        </div>
+        <div>
+          <div class="subtitle2-modal">Assignment</div>
+          <span class="ml-1"> {{ selectedUser.unitName ?? "-" }} </span>
+        </div>
+        <div>
+          <div class="subtitle2-modal">Phone</div>
+          <span class="ml-1"> {{ selectedUser.phone | phone }} </span>
+        </div>
+      </div>
+      <hr>
+      <div class="subtitle-modal mt-4 mb-6">Unit</div>
+      <div class="flex items-center gap-6 w-full mb-4">
+        <div class="flex items-center gap-6 mb-4">
+          <p-inputSwitch [(ngModel)]="isLinkUnitEnabled" styleClass="custom-inputswitch"
+            [disabled]="userModalMode === 'view'" />
+          <div class="flex flex-col">
+            <div class="subtitle2-modal">
+              Link unit
+            </div>
+            To link the user to a unit, enable this option and select the unit on the right
+          </div>
+        </div>
+        <span class="flex flex-col w-4/6">
+          <p-dropdown [options]="unitOptions" optionLabel="name" optionValue="id" [(ngModel)]="unitId"
+            styleClass="w-4/6" placeholder="Select the unit" [disabled]="!isLinkUnitEnabled || userModalMode === 'view'"
+            appendTo="body" (onChange)="onUnitChange()">
+            <ng-template pTemplate="dropdownicon">
+              <app-icon-chevron-down color="currentColor" size="16px" />
+            </ng-template>
+          </p-dropdown>
+          @if (isRequired) {
+          <small class="p-error">Required field</small>
+          }
+        </span>
+      </div>
+      <hr>
+      <div class="subtitle-modal my-4">Profiles</div>
+      <div class="flex flex-wrap pb-2 mt-2">
+        <ng-container *ngFor="let profile of selectedProfiles; let i = index">
+          <ng-container *ngIf="i > 0 && i % 4 === 0">
+            <div class="w-full">
+              <hr class="mb-4 md:my-4" />
+            </div>
+          </ng-container>
+          <div class="flex items-center gap-6 pr-4 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 mb-4 md:mb-0">
+            <div class="flex-shrink-0">
+              <p-inputSwitch [(ngModel)]="profile.isSelected" styleClass="custom-inputswitch"
+                [disabled]="userModalMode === 'view'" />
+            </div>
+            <div class="flex flex-col">
+              <div class="subtitle2-modal">
+                {{ profile?.name }}
+              </div>
+              {{ profile?.description }}
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button [label]="userModalMode !== 'view' ? 'Cancel' : 'Close'" severity="danger" text="true" (click)="
+        userModalMode !== 'view'
+          ? openConfirmCancelSaveUserModal()
+          : closeUserModal()
+      " styleClass="custom-closesquare">
+      <app-icon-close-square size="24" color="#0F4C5C"></app-icon-close-square>
+    </p-button>
+    <p-button styleClass="custom-saveButton" (click)="openConfirmSaveUserModal()" *ngIf="userModalMode !== 'view'">
+      <app-icon-save size="24" color="#ffffff"></app-icon-save>
+      Save
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="" modal="true" [(visible)]="confirmCancelSaveUserModalVisibility" baseZIndex="1" resizable="false"
+  draggable="false" closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <p-header>
+    <div class="text-xl">Cancel @if(userModalMode == 'edit'){Editing }Register</div>
+  </p-header>
+  <hr />
+  <main>
+    <p>Do you really want to cancel?</p>
+    <p>All entered data will be lost.</p>
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="No, keep the data" severity="danger" text="true" (click)="closeConfirmCancelSaveUserModal()"
+      styleClass="custom-confirm-no"></p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="closeConfirmCancelSaveUserModal(); closeUserModal(true)">Yes,
+      cancel</p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="" modal="true" [(visible)]="confirmSaveUserModalVisibility" baseZIndex="1" resizable="false"
+  draggable="false" closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <p-header>
+    <div class="text-xl">
+      Save {{
+      userModalMode === "edit"
+      ? "Editing "
+      : ""
+      }}Register
+    </div>
+  </p-header>
+  <hr />
+  <main>
+    Do you really want to save@if (userModalMode === 'add') { the record? } @else { the changes? }
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="Not now" severity="danger" text="true" (click)="closeConfirmSaveUserModal()"
+      styleClass="custom-confirm-no"></p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="saveOrEdit()">
+      Yes, save
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="" modal="true" [(visible)]="isDisableUserModalVisibility" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <p-header>
+    <div class="text-xl">Deactivate user</div>
+    <div class="container-button-close">
+      <button type="button" pButton (click)="closeDisableUserModal()">
+        <app-icon-close-square />
+      </button>
+    </div>
+  </p-header>
+  <hr />
+  <main>Do you really want to deactivate this user access?</main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="Cancel" severity="danger" text="true" (click)="closeDisableUserModal()"
+      styleClass="custom-confirm-no"></p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="disableUser()">Deactivate</p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="" modal="true" [(visible)]="isEnableUserModalVisibility" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <p-header>
+    <div class="text-xl">Activate user</div>
+    <div class="container-button-close">
+      <button type="button" pButton (click)="closeEnableUserModal()">
+        <app-icon-close-square />
+      </button>
+    </div>
+  </p-header>
+  <hr />
+  <main>Do you really want to activate this user access?</main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="Not now" severity="danger" text="true" (click)="closeEnableUserModal()"
+      styleClass="custom-confirm-no"></p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="enableUser()">Yes, activate</p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="" modal="true" [(visible)]="historyModalVisibility" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" styleClass="w-[45%]" class="p-dialog-v2">
+  <p-header>
+    <div class="text-xl">History</div>
+    <div class="container-button-close">
+      <button type="button" pButton (click)="closeHistoryModal()">
+        <app-icon-close-square />
+      </button>
+    </div>
+  </p-header>
+  <hr />
+  <main>
+    <div class="grid grid-cols-12 pb-6 mt-2">
+      <div class="col-span-3 text-slate-500">
+        <div class="font-black">Employee ID</div>
+        <div>
+          {{ selectedUser?.employeeId ?? "-" }}
+        </div>
+      </div>
+      <div class="col-span-5 text-slate-500">
+        <div class="font-black">Full name</div>
+        <div>
+          {{ selectedUser?.name ?? "-" }}
+        </div>
+      </div>
+    </div>
+
+    <p-table styleClass="p-datatable-transparent" [value]="entityEvents">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Event</th>
+          <th>Owner</th>
+          <th>Event date</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-event>
+        <tr>
+          <td>{{ event.action }}</td>
+          <td>{{ event.userName }}</td>
+          <td>
+            {{ event.date | date : "dd/MM/yyyy" }} at
+            {{ event.date | date : "HH:mm:ss" }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+    <br />
+  </main>
+  <hr />
+  <p-footer>
+    <p-button label="Close" severity="danger" text="true" (click)="closeHistoryModal()" styleClass="custom-closesquare">
+      <app-icon-close-square size="24" color="#0F4C5C" />
+    </p-button>
+  </p-footer>
+</p-dialog>

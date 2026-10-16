@@ -1,0 +1,249 @@
+<p-toast></p-toast>
+
+<div class="ms-4 mb-4 header">
+  <strong class="text-[1.5rem]">Profiles</strong>
+</div>
+
+<p-card>
+  <div class="flex flex-col md:justify-between pb-2 gap-4 md:flex-row">
+    <div class="">
+      <form *ngIf="userPermissionService.hasPermission('Profiles', 'View')" [formGroup]="formSearch"
+        (submit)="searchProfilesByKeyword()">
+        <app-search-input [model]="formSearch.get('searchTerm')?.value"
+          (modelChange)="formSearch.get('searchTerm')?.setValue($event)" (search)="searchProfilesByKeyword()"
+          placeholder="Search by profile or description"></app-search-input>
+      </form>
+    </div>
+    <div class="">
+      <p-button label="Add" styleClass="custom-addNewButton min-w-[150px] float-end text-nowrap"
+        (click)="openProfileModal({ mode: 'add' })"
+        [disabled]="!userPermissionService.hasPermission('Profiles', 'Create')">
+        <app-icon-add-square color="white" size="24px" />
+      </p-button>
+    </div>
+  </div>
+</p-card>
+
+<br />
+
+<p-card>
+  <p-table #tb *ngIf="userPermissionService.hasPermission('Profiles', 'View')" responsiveLayout="stack"
+    [breakpoint]="'960px'" [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="getProfileFeatureActions($event)"
+    [lazy]="true" [value]="profileFeatureActions" [paginator]="false" [rows]="rows" [first]="first"
+    [totalRecords]="totalItems" [rowsPerPageOptions]="[10, 20, 30, 40, 50]">
+    <ng-template pTemplate="header">
+      <tr>
+        @for (item of profileTableHeaders; track item.title) { @if (item.key) {
+        <th pTooltip="Sort" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [pSortableColumn]="item.key"
+          class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}<p-sortIcon [field]="item.key" />
+          </div>
+        </th>
+        } @else {
+        <th class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}
+          </div>
+        </th>
+        } }
+        <th class="text-center min-w-[60px] p-2">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td class="lg:min-w-[250px] xl:min-w-[300px]"><span class="p-column-title"></span>{{ item.name ??
+          item.profileName }}
+        </td>
+        <td class="lg:min-w-[400px] xl:min-w-[500px]"><span class="p-column-title"></span>{{ item.description ??
+          item.profileText }}</td>
+        <td>
+          <span class="p-column-title"></span>{{ getFeaturesInline(item.features) }}
+        </td>
+        <td>
+          <div class="flex justify-center items-center">
+            <p-button pTooltip="View" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [text]="true"
+              [rounded]="true" styleClass="custom-tablebutton"
+              (click)="openProfileModal({ mode: 'view', profile: item })" [disabled]="
+                !userPermissionService.hasPermission('Profiles', 'View')
+              ">
+              <app-icon-view />
+            </p-button>
+            <p-button pTooltip="Edit" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [text]="true"
+              [rounded]="true" styleClass="custom-tablebutton"
+              (click)="openProfileModal({ mode: 'edit', profile: item })" [disabled]="
+                !item.allowEditing ||
+                !userPermissionService.hasPermission('Profiles', 'Edit')
+              ">
+              <app-icon-edit2 />
+            </p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="paginatorleft">
+      <span>{{ totalItems }} items</span>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7">No records found</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<app-paginator [first]="first" [last]="last" [totalItems]="totalItems" [rows]="rows" [options]="options"
+  (rowsChange)="onRowsChange($event)" (pageChange)="getProfileFeatureActions($event)"></app-paginator>
+
+<p-dialog header="" modal="true" [(visible)]="profileModalVisibility" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" [style]="{ width: '90%', height: 'auto', overflow: 'hidden' }"
+  class="p-dialog-v2">
+  <p-header>
+    <div class="text-xl">{{ getModalTitle() }}</div>
+    <div class="container-button-close">
+      <button type="button" pButton (click)="
+          profileModalMode !== 'view'
+            ? (visibleCancelConfirm = true)
+            : closeProfileModal()
+        ">
+        <app-icon-close-square />
+      </button>
+    </div>
+  </p-header>
+  <hr />
+  <main>
+    <form [formGroup]="form">
+      <div class="grid grid-cols-12">
+        <div class="col-span-3">
+          <label for="profile">Profile <span class="custom-redcolor">*</span></label>
+          <input pInputText id="profile" maxlength="100" appAlphanumeric appNoLeadingSpaces formControlName="profile"
+            [style]="{ width: '95% !important' }" (keyup)="verifyShowInputEmail($event)" />
+        </div>
+        <div class="col-span-9">
+          <label class="flex" for="text">Profile description <span class="custom-redcolor">*</span>
+            @if(profileModalMode != 'view'){
+            <app-icon-information
+              pTooltip="Enter a short description used to identify the profile the user will be linked to."
+              tooltipPosition="bottom" tooltipStyleClass="custom-tooltip custom-tooltip-longo" appendTo="body"
+              class="pl-2 mt-[-2px] mr-1" size="16px">
+            </app-icon-information>
+            }
+          </label>
+          <input pInputText id="text" maxlength="300" appAlphanumeric appNoLeadingSpaces formControlName="text"
+            [style]="{ width: '100% !important' }" />
+        </div>
+      </div>
+      <div class="grid grid-cols-12 mt-4" *ngIf="showInputEmail">
+        <div class="col-span-3">
+          <label for="accessDeniedEmail">E-mail <span class="custom-redcolor">*</span></label>
+          <input pInputText id="accessDeniedEmail" maxlength="50" appAlphanumeric appNoLeadingSpaces
+            formControlName="accessDeniedEmail" [style]="{ width: '95% !important' }" />
+        </div>
+      </div>
+    </form>
+    <p-table styleClass="p-datatable-transparent" [value]="selectedProfile">
+      <ng-template pTemplate="header">
+        <tr>
+          <th colspan="2"></th>
+          <th colspan="6"></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row>
+        <tr class="gap-4 mt-5">
+          <td class="max-w-[3.125rem] w-[50px]">
+            <p-inputSwitch [(ngModel)]="row.isActive" styleClass="custom-inputswitch"
+              [disabled]="profileModalMode === 'view'" (ngModelChange)="onToggleFeature(row)" />
+          </td>
+          <td class="custom-table-description column-table-profile">
+            <span class="font-card-borda flex flex-col mb-2">{{
+              row.featureName
+              }}</span>
+            {{ row.text }}
+          </td>
+          <td *ngFor="let item of row.actions" class="w-[90px] column-table-profile">
+            <div class="push flex flex-col items-center w-max ps-2 p-2 mb-6 gap-6 font-card-description" *ngIf="item.id">
+              {{ item.action }}
+              @if(item.isDisabled){
+                <p-checkbox styleClass="custom-checkbox"
+                  [disabled]="item.isDisabled || profileModalMode === 'view' || item.id === 1"
+                  [(ngModel)]="item.isChecked" (ngModelChange)="item.isActive = $event" [binary]="true"
+                  inputId="binary-{{ item.value }}" />
+              } @else {
+                <p-checkbox styleClass="custom-checkbox"
+                  [disabled]="!row.isActive || profileModalMode === 'view' || item.id === 1"
+                  [(ngModel)]="item.isActive"
+                  [binary]="true" inputId="binary-{{ item.value }}" />
+              }
+            </div>
+          </td>
+          <ng-container *ngIf="row.actions.length === 0">
+            <td class="invisible-td" colspan="6"></td>
+          </ng-container>
+        </tr>
+      </ng-template>
+    </p-table>
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button [label]="profileModalMode !== 'view' ? 'Cancel' : 'Close'" severity="danger" text="true"
+      styleClass="custom-closesquare" (click)="
+        profileModalMode !== 'view'
+          ? (visibleCancelConfirm = true)
+          : (profileModalVisibility = false)
+      ">
+      <app-icon-close-square size="24" color="#0F4C5C"></app-icon-close-square>
+    </p-button>
+    <p-button styleClass="custom-saveButton" (click)="confirmSave()" *ngIf="profileModalMode !== 'view'">
+      <app-icon-save size="24" color="#ffffff"></app-icon-save> Save
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="" modal="true" [(visible)]="visibleConfirmSave" baseZIndex="1" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <p-header>
+    <div class="text-xl">
+      Save {{
+      profileModalMode === "edit"
+      ? "Editing "
+      : ""
+      }}Profile
+    </div>
+  </p-header>
+  <hr />
+  <main>
+    Do you really want to save the profile changes?
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="Not now" severity="danger" text="true" (click)="visibleConfirmSave = false"
+      styleClass="custom-confirm-no"></p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="saveOrEdit()">
+      Yes, save
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="" modal="true" [(visible)]="visibleCancelConfirm" resizable="false" draggable="false" closable="false"
+  closeOnEscape="false" [style]="{ 'max-width': '460px', 'min-width': '420px' }" class="p-dialog-v2">
+  <p-header>
+    <div class="text-xl">Cancel {{profileModalMode == 'add' ? 'Creation' : 'Editing' }}</div>
+  </p-header>
+  <hr />
+  <main>
+    <p>Do you really want to cancel {{profileModalMode == 'add' ? 'the creation' : 'the editing' }} of this
+      profile?</p>
+    <p>All entered data will be lost.</p>
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="No, keep the data" severity="danger" text="true" (click)="visibleCancelConfirm = false"
+      styleClass="custom-confirm-no">
+    </p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="
+        closeCancelConfirm()
+      ">
+      Yes, cancel
+    </p-button>
+  </p-footer>
+</p-dialog>

@@ -1,0 +1,19 @@
+<div
+  class="flex items-center justify-between w-full md:min-w-[23.75rem] lg:max-w-[560px] h-[50px] rounded-[5px] p-[12px] border border-gray-300 bg-white"
+  [ngClass]="{
+    'lg:max-w-[560px]': !fullWidth
+  }"
+>
+  <input
+    type="text"
+    maxlength="100"
+    class="border-none outline-none w-full p-2 rounded-md lg:min-w-[21rem] xl:min-w-[29.25rem]"
+    [placeholder]="placeholder"
+    [(ngModel)]="model"
+    (ngModelChange)="onModelChange($event)"
+    (keyup.enter)="onSearch()"
+  />
+  <button type="button" (click)="onSearch()">
+    <app-icon-search-normal size="24" color="#858796"></app-icon-search-normal>
+  </button>
+</div>
