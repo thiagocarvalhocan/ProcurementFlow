@@ -8,6 +8,6 @@ import { Component, Input } from '@angular/core';
   styleUrl: './icon-arrowright.component.scss'
 })
 export class IconArrowrightComponent {
-  @Input() color: string = '#000000';
+  @Input() color: string = 'currentColor';
   @Input() size: string = '16px';
 }
