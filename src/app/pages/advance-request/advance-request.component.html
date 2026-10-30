@@ -194,7 +194,7 @@
 </p-dialog>
 
 <app-add-edit-advance-request mode="add" [(isVisible)]="isVisibleNewModalMonthly" [newRequest]="newRequest"
-  [months]="requestMonthsNew" [currentYear]="currentYear" [messageFormatted]="newRequestFormatted"
+  [months]="requestMonthsNew" [currentYear]="currentYear" [newRequestFormatted]="newRequestFormatted"
   (save)="confirmSave($event)" (cancel)="confirmCancel($event)" (checkboxChange)="onCheckboxChange($event)" />
 
 
@@ -213,7 +213,7 @@
 
 
 <p-dialog [header]="
-    confirmLabel === 'Cadastrar' ? 'Cancel Creation' : 'Cancel Edit'
+    confirmLabel === 'Add' ? 'Cancel Creation' : 'Cancel Edit'
   " [modal]="true" [(visible)]="visibleCancelConfirm" [resizable]="false" [draggable]="false" closable="false"
   [style]="{ width: '28rem' }" class="p-dialog-alert">
   <hr />
@@ -231,11 +231,11 @@
         styleClass="custom-confirm-no">
       </p-button>
       <p-button [label]="
-          confirmLabel === 'Cadastrar'
+          confirmLabel === 'Add'
             ? 'Yes, cancel creation'
             : 'Yes, cancel edit'
         " styleClass="custom-confirm-yes" (click)="
-          closeCancel(confirmLabel === 'Cadastrar' ? 'Cadastrar' : 'Edit');
+          closeCancel(confirmLabel === 'Add' ? 'Add' : 'Edit');
           visibleCancelConfirm = false
         ">
       </p-button>
@@ -244,12 +244,12 @@
 </p-dialog>
 
 <p-dialog [header]="
-    confirmLabel === 'Cadastrar' ? 'Save Request' : 'Save Edit'
+    confirmLabel === 'Add' ? 'Save Request' : 'Save Edit'
   " Modal="true" [(visible)]="visibleSaveConfirm" baseZIndex="1" resizable="false" draggable="false" closable="false"
   closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
   <hr />
   <main>
-    @if (confirmLabel === 'Cadastrar') { Do you really save a Request? }
+    @if (confirmLabel === 'Add') { Do you really save a Request? }
     @else { Do you really save a edit da Request? }
   </main>
   <hr />
@@ -257,9 +257,9 @@
     <p-button label="Not now" severity="danger" text="true" (click)="visibleSaveConfirm = false"
       styleClass="custom-confirm-no"></p-button>
     <p-button styleClass="custom-confirm-yes" (click)="
-        confirmLabel == 'Cadastrar' ? saveNewRequest() : saveEditRequest()
+        confirmLabel == 'Add' ? saveNewRequest() : saveEditRequest()
       ">
-      @if (confirmLabel === 'Cadastrar') { Yes, save } @else { Yes, edit }
+      @if (confirmLabel === 'Add') { Yes, save } @else { Yes, edit }
     </p-button>
   </p-footer>
 </p-dialog>

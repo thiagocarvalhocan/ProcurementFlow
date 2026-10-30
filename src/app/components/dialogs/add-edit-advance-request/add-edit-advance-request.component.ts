@@ -59,7 +59,7 @@ export class AddEditAdvanceRequestComponent {
   }
 
   get header(): string {
-    if (this.isAdd) return 'Add Advance Request - Monthly Budget';
+    if (this.isAdd) return 'Add New Advance Request - Monthly Budget';
     if (this.isEdit) return 'Edit Advance Request - Monthly Budget';
     return 'View Advance Request - Monthly Budget';
   }

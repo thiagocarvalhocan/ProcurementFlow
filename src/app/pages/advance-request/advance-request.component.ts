@@ -470,7 +470,7 @@ export class AdvanceRequestComponent implements OnInit {
 
   closeCancel(label: string) {
     switch (label) {
-      case 'Cadastrar':
+      case 'Add':
         return this.closeModalAdd();
       case 'Edit':
         return this.closeModalEdit();
