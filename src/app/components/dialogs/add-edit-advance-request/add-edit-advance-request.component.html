@@ -1,0 +1,135 @@
+<p-dialog [header]="header" [(visible)]="isVisible" [resizable]="false" [draggable]="false"
+  styleClass="custom-Modal w-[95%] sm:w-[80%] md:w-[70%]" [modal]="true" closeOnEscape="false"
+  closable="false">
+  <p-header>
+    <div class="custom-dialog-header">
+      <div class="text-xl">
+        {{ header }}
+      </div>
+      <div class="divButton">
+        <button type="button" pButton (click)="isView ? close() : onCancel()">
+          <app-icon-close-square />
+        </button>
+      </div>
+    </div>
+  </p-header>
+  <hr />
+  <main>
+    @if (isAdd) {
+    <div *ngIf="newRequest" class="pb-[1.125rem] pt-3">
+      <div class="warning p-4">
+        <ul class="list-disc px-4">
+          <ul [innerHTML]="newRequestFormatted" class="conteudo-html pl-2 px-4"></ul>
+        </ul>
+      </div>
+      <div class="flex justify-between gap-6 py-6">
+        <div class="w-full">
+          <div class="custom-tablesubtitle gap-1">
+            Unit
+          </div>
+          <input type="text" pInputText class="w-full" [(ngModel)]="newRequest.unitDescription" [disabled]="true" />
+        </div>
+        <div>
+          <div class="custom-tablesubtitle gap-1">
+            Budget Monthly
+          </div>
+          <input type="text" pInputText [ngModel]="
+              newRequest.budgetValue | currency : 'BRL' : 'symbol' : '1.2-2'
+            " [disabled]="true" />
+        </div>
+      </div>
+      <div>
+        Select below the months to send the budget for the year of
+        {{ currentYear }}.
+      </div>
+    </div>
+    }
+
+    @if (isEdit) {
+    <div *ngIf="advanceRequestDetail" class="pb-[1.125rem] pt-3">
+      <div *ngIf="advanceRequestDetail.message != null" class="warning p-3">
+        <div>
+          <ul [innerHTML]="messageFormatted" class="conteudo-html pl-2"></ul>
+        </div>
+      </div>
+      <div class="flex justify-between gap-6 py-6">
+        <div class="w-full">
+          <div class="custom-tablesubtitle gap-1">
+            Unit
+          </div>
+          <input type="text" pInputText class="w-full" [(ngModel)]="advanceRequestDetail.unitDescription"
+            [disabled]="true" />
+        </div>
+        <div>
+          <div class="custom-tablesubtitle gap-1">
+            Budget Monthly
+          </div>
+          <input type="text" pInputText [ngModel]="
+              advanceRequestDetail.budgetValue | currency : 'BRL' : 'symbol' : '1.2-2'
+            " [disabled]="true" />
+        </div>
+      </div>
+      <div>
+        Select below the months to send the budget for the year of
+        {{ currentYear }}.
+      </div>
+    </div>
+    }
+
+    @if (isView) {
+    <div *ngIf="advanceRequestDetail" class="pb-[1.125rem] pt-3">
+      <div class="flex justify-between gap-6 py-6">
+        <div>
+          <div class="custom-tablesubtitle gap-1">Unit</div>
+          <span class="font-table-subtitle pl-3">
+            {{ unitDescription }}
+          </span>
+        </div>
+        <div class="mr-40">
+          <div class="custom-tablesubtitle gap-1">Monthly Budget</div>
+          <span class="font-table-subtitle pl-3">
+            {{ advanceRequestDetail.budgetValue | currency : 'BRL' : 'symbol' : '1.2-2' }}
+          </span>
+        </div>
+      </div>
+      <div [class]="isRequest ? 'font-dialog-sub' : 'font-table-subtitle'">
+        Select below the months to send the budget for the year {{ currentYear }}.
+      </div>
+    </div>
+    }
+
+    <div class="grid grid-nogutter">
+      <div class="col-12">
+        <div class="checkbox-grid">
+          <div *ngFor="let month of months; let i = index" class="checkbox-column">
+            <p-checkbox *ngIf="i < 12" [(ngModel)]="month.requested" binary="true" [label]="month.description"
+              [disabled]="isView ? true : month.isFieldDisabled" styleClass="custom-checkbox"
+              (ngModelChange)="onCheckboxChange(month)"></p-checkbox>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <hr />
+  <ng-template pTemplate="footer">
+    @if (isView) {
+    <div class="flex justify-end gap-6">
+      <p-button [rounded]="true" label="Close" severity="danger" [text]="true" (click)="close()"
+        styleClass="custom-closesquare">
+        <app-icon-close-square size="24" color="#0F4C5C" />
+      </p-button>
+    </div>
+    } @else {
+    <div class="flex justify-end gap-6">
+      <p-button [rounded]="true" label="Cancel" severity="danger" [text]="true" (click)="onCancel()"
+        styleClass="custom-closesquare">
+        <app-icon-close-square size="24" color="#0F4C5C" />
+      </p-button>
+      <p-button styleClass="custom-saveButton" (click)="onSave()">
+        <app-icon-save size="24" color="#ffffff"></app-icon-save>
+        Save
+      </p-button>
+    </div>
+    }
+  </ng-template>
+</p-dialog>

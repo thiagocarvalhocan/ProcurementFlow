@@ -38,10 +38,10 @@ const UNKNOWN_USER_NAME = 'Unknown user';
   styleUrl: './toolbar.component.scss',
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
-  /** Display name of the authenticated (mock) session. */
+  
   userName: string = UNKNOWN_USER_NAME;
 
-  /** E-mail of the authenticated (mock) session. */
+  
   email: string = '';
   isExpanded: boolean = false;
 
@@ -91,7 +91,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
-  /** Clears the mock session and sends the user back to the login page. */
+  
   logout(): void {
     this.userName = UNKNOWN_USER_NAME;
     this.email = '';
@@ -114,14 +114,14 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     const pageInUseSub = this.pageAccessService
       .onPageInUse()
       .subscribe((currentUser) => {
-        // this.showMessage('error', 'Error', `The page is already in use by user ${currentUser}`)
-        // this.router.navigate(['/'])
+
+
       });
 
     const accessGrantedSub = this.pageAccessService
       .onAccessGranted()
       .subscribe(() => {
-        // this.showMessage('success', 'Success', 'Page access granted')
+
       });
 
     this.subscriptions.push(pageInUseSub, accessGrantedSub);
@@ -151,7 +151,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     this.sidebarService.toggleSidebar();
   }
 
-  /** Reads name and e-mail straight from the mock session service. */
+  
   private syncSessionUser(): void {
     const user = this.authSessionService.currentUser;
 

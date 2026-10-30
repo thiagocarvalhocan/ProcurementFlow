@@ -1,0 +1,668 @@
+<p-toast></p-toast>
+
+<div class="ms-4 mb-4 header">
+  <strong class="text-[1.5rem]">Fixed Message</strong>
+</div>
+
+<p-card>
+  <div class="grid grid-cols-12">
+    <div class="col-span-3"></div>
+    <div class="col-span-9">
+      <p-button label="Add" styleClass="custom-saveButton min-w-[150px] ms-4 float-end"
+        (click)="openFixedMessageModal('add', null)" [disabled]="
+          !userPermissionService.hasPermission(
+            'RequestMessage',
+            'Create'
+          )
+        ">
+        <app-icon-add-square color="white" size="24px" />
+      </p-button>
+    </div>
+  </div>
+</p-card>
+
+<br />
+
+<p-card>
+  <p-table #tb *ngIf="
+      userPermissionService.hasPermission(
+        'RequestMessage',
+        'View'
+      )
+    " (onLazyLoad)="getFixedMessages($event)" [lazy]="true" [value]="fixedMessages" [Paginator]="false">
+    <ng-template pTemplate="header">
+      <tr>
+        @for (item of headersTableFixedMessage; track item.title) {
+        @if (item.key) {
+        <th pTooltip="Sort" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [pSortableColumn]="item.key"
+          class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}
+            <p-sortIcon [field]="item.key" />
+          </div>
+        </th>
+        } @else {
+        <th class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}
+          </div>
+        </th>
+        }
+        }
+        <th class="text-center min-w-[60px] p-2">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td class="max-w-[43.75rem] break-words">
+          <span class="p-column-title"></span>{{ removeTags(item.description) }}
+        </td>
+        <td>
+          <span class="p-column-title"></span>
+          {{ item | period }}
+        </td>
+        <td>
+          <span class="p-column-title"></span>
+          <p-tag [value]="item.active ? 'Active' : 'Inactive'" [severity]="getSeverityStatusMessage(item.active)" />
+        </td>
+        <td>
+          <div class="flex justify-center items-center">
+            <p-button pTooltip="View" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [text]="true"
+              [rounded]="true" styleClass="custom-tablebutton" (click)="openFixedMessageModal('view', item)" [disabled]="
+                !userPermissionService.hasPermission(
+                  'RequestMessage',
+                  'View'
+                )
+              ">
+              <app-icon-view />
+            </p-button>
+
+            <p-button pTooltip="Edit" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" text="true"
+              styleClass="custom-tablebutton" (click)="openFixedMessageModal('edit', item)" [disabled]="
+                !userPermissionService.hasPermission(
+                  'RequestMessage',
+                  'Edit'
+                )
+              ">
+              <app-icon-edit2 />
+            </p-button>
+            <p-button id="buttonActivateDeactivate" [pTooltip]="item.active ? 'Deactivate' : 'Activate'"
+              tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" text="true"
+              (click)="item.active?openIsDisableMessageModal(item, 'fixed'): openIsEnableMessageModal(item, 'fixed')"
+              styleClass="custom-tablebutton" [disabled]="
+                !userPermissionService.hasPermission(
+                  'RequestMessage',
+                  'Edit'
+                )
+              ">
+              <i [class]="item.active ? 'pi pi-ban' : 'pi pi-check-circle'"
+                [style]="item.active ? 'color: #9D0202' : 'color: #12684C'"
+                style="padding-top: 4px; font-size: 20px"></i>
+            </p-button>
+            <p-button pTooltip="Delete" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" text="true"
+              styleClass="custom-tablebutton" (click)="openIsDeleteMessageModal(item, 'fixed')" [disabled]="
+                !userPermissionService.hasPermission(
+                  'RequestMessage',
+                  'Delete'
+                )
+              ">
+              <app-icon-delete />
+            </p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptyMessage">
+      <tr>
+        <td colspan="7">No records found</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<app-paginator [first]="firstTableMessageFixed" [last]="lastTableMessageFixed"
+  [totalItems]="totalItemsTableMessageFixed" [rows]="rowsTableMessageFixed" [options]="options"
+  (rowsChange)="onRowsChangeMessageFixed($event)" (pageChange)="getFixedMessages($event)"></app-paginator>
+
+
+<p-dialog header="" Modal="true" [(visible)]="fixedMessageModalVisibility" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" styleClass="w-[90%] sm:w-[75%] lg:w-[60%]" class="p-dialog-v2">
+  <p-header>
+    <div class="text-xl">{{ getTitleMessageFixedModal() }}</div>
+    <div class="container-button-close">
+      <button type="button" pButton (click)="
+          messageModalCurrentMode !== 'view'
+            ? openCancelConfirmMessageModal()
+            : closeFixedMessageModal()
+        ">
+        <app-icon-close-square />
+      </button>
+    </div>
+  </p-header>
+  <hr />
+  <main>
+
+    <form [formGroup]="formFixedMessage">
+      <div class="grid grid-cols-12">
+        <div class="col-span-12">
+          <label for="perfil">Description <span class="custom-redcolor">*</span></label>
+          @if (messageModalCurrentMode !== 'view') {
+          <p-editor #editorRef formControlName="description" [style]="{ height: '220px' }"
+            (onTextChange)="limitCharacterCountEditor($event, editorRef, maxLengthFixed, 'charsUsedFixed')">
+            <ng-template pTemplate="header">
+              <ng-container *ngTemplateOutlet="editorToolbar"></ng-container>
+            </ng-template>
+          </p-editor>
+          <div class="text-right mt-1" style="font-size: 12px; color: #6c757d;">
+            {{ charsUsedFixed }}/{{ maxLengthFixed }} characters
+          </div>
+          } @else {
+          <div class="conteudo-html pl-2" [innerHTML]="descriptionFixedMessageFormatted"></div>
+          }
+        </div>
+      </div>
+      <div class="flex mt-6 gap-8">
+        <div class="w-full">
+          <label for="perfil">Start Date <span class="custom-redcolor">*</span></label>
+          <br />
+          <p-calendar dateFormat="dd/mm/yy" formControlName="startDate" [showIcon]="true" [showOnFocus]="false"
+            styleClass="custom-calendar-height w-full cursor-pointer" [appendTo]="'body'" [iconDisplay]="'input'"
+            placeholder="Select" (onSelect)="onChangeStartDate($event)" (onInput)="onChangeStartDate($event)"
+            (input)="onDateInputMask($event)">
+            <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
+              <app-icon-calendar (click)="clickCallBack($event)"></app-icon-calendar>
+            </ng-template>
+          </p-calendar>
+        </div>
+        <div class="w-full">
+          <label for="perfil">End Date <span class="custom-redcolor">*</span></label>
+          <br />
+          <p-calendar dateFormat="dd/mm/yy" formControlName="endDate" [showIcon]="true" [showOnFocus]="false"
+            styleClass="custom-calendar-height w-full cursor-pointer" [appendTo]="'body'" [iconDisplay]="'input'"
+            placeholder="Select" (input)="onDateInputMask($event)">
+            <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
+              <app-icon-calendar (click)="clickCallBack($event)"></app-icon-calendar>
+            </ng-template>
+          </p-calendar>
+        </div>
+      </div>
+    </form>
+  </main>
+  <hr>
+  <p-footer class="flex justify-end gap-4">
+    <p-button [label]="messageModalCurrentMode !== 'view' ? 'Cancel' : 'Close'" severity="danger" text="true"
+      styleClass="custom-closesquare" (click)="
+        messageModalCurrentMode !== 'view'
+          ? openCancelConfirmMessageModal()
+          : closeFixedMessageModal()
+      ">
+      <app-icon-close-square size="24" color="#0F4C5C" />
+    </p-button>
+    <p-button styleClass="custom-saveButton" (click)="openConfirmSaveMessageModal('fixed')"
+      *ngIf="messageModalCurrentMode !== 'view'">
+      <app-icon-save size="24" color="#ffffff" />
+      Save
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+
+
+<br />
+
+<div class="ms-4 mb-4 header">
+  <strong class="text-[1.5rem]">Dynamic Message</strong>
+</div>
+
+<p-card>
+  <div class="grid grid-cols-12">
+    <div class="col-span-3"></div>
+    <div class="col-span-9">
+      <p-button label="Add" styleClass="custom-saveButton min-w-[150px] ms-4 float-end"
+        (click)="openDynamicMessageModal('add', null)" [disabled]="
+          !userPermissionService.hasPermission(
+            'RequestMessage',
+            'Create'
+          )
+        ">
+        <app-icon-add-square color="white" size="24px" />
+      </p-button>
+    </div>
+  </div>
+</p-card>
+
+<br />
+
+<p-card>
+  <p-table #tb2 *ngIf="
+      userPermissionService.hasPermission(
+        'RequestMessage',
+        'View'
+      )
+    " (onLazyLoad)="getDynamicMessages($event)" [lazy]="true" [value]="dynamicMessages" [Paginator]="false">
+    <ng-template pTemplate="header">
+      <tr>
+        @for (item of headersTableDynamicMessage; track item.title) {
+        @if (item.key) {
+        <th pTooltip="Sort" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [pSortableColumn]="item.key"
+          class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}
+            <p-sortIcon [field]="item.key" />
+          </div>
+        </th>
+        } @else {
+        <th class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}
+          </div>
+        </th>
+        }
+        }
+        <th class="text-center min-w-[60px] p-2">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td class="max-w-[43.75rem] break-words">
+          <span class="p-column-title"></span>{{ removeTags(item.description) }}
+        </td>
+        <td>
+          <span class="p-column-title"></span>
+          {{ item | period }}
+        </td>
+        <td><span class="p-column-title"></span>{{ item.specificMonth }}</td>
+        <td>
+          <span class="p-column-title"></span>
+          <p-tag [value]="item.active ? 'Active' : 'Inactive'" [severity]="getSeverityStatusMessage(item.active)" />
+        </td>
+        <td>
+          <div class="flex justify-center items-center">
+            <p-button pTooltip="View" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [text]="true"
+              [rounded]="true" styleClass="custom-tablebutton" (click)="openDynamicMessageModal('view', item)"
+              [disabled]="
+                !userPermissionService.hasPermission(
+                  'RequestMessage',
+                  'View'
+                )
+              ">
+              <app-icon-view width="35" height="34" />
+            </p-button>
+
+            <p-button pTooltip="Edit" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" text="true"
+              styleClass="custom-tablebutton" (click)="openDynamicMessageModal('edit', item)" [disabled]="
+                !userPermissionService.hasPermission(
+                  'RequestMessage',
+                  'Edit'
+                )
+              ">
+              <app-icon-edit2 />
+            </p-button>
+
+            <p-button id="buttonActivateDeactivate" [pTooltip]="item.active ? 'Deactivate' : 'Activate'"
+              tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" text="true"
+              (click)="item.active? openIsDisableMessageModal(item, 'dynamic') : openIsEnableMessageModal(item, 'dynamic')"
+              styleClass="custom-tablebutton" [disabled]="
+                !userPermissionService.hasPermission(
+                  'RequestMessage',
+                  'Edit'
+                )
+              ">
+              <i [class]="item.active ? 'pi pi-ban' : 'pi pi-check-circle'"
+                [style]="item.active ? 'color: #9D0202' : 'color: #12684C'"
+                style="padding-top: 4px; font-size: 20px"></i>
+            </p-button>
+
+            <p-button pTooltip="Delete" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" text="true"
+              styleClass="custom-tablebutton" (click)="openIsDeleteMessageModal(item, 'dynamic')" [disabled]="
+                !userPermissionService.hasPermission(
+                  'RequestMessage',
+                  'Delete'
+                )
+              ">
+              <app-icon-delete />
+            </p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptyMessage">
+      <tr>
+        <td colspan="7">No records found</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<app-paginator [first]="firstTableMessageDynamic" [last]="lastTableMessageDynamic"
+  [totalItems]="totalItemsTableMessageDynamic" [rows]="rowsTableMessageDynamic" [options]="optionsDynamic"
+  (rowsChange)="onRowsChangeDynamicMessage($event)" (pageChange)="getDynamicMessages($event)"></app-paginator>
+
+
+<p-dialog header="" Modal="true" [(visible)]="dynamicMessageModalVisibility" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" styleClass="w-[90%] sm:w-[75%] lg:w-[60%]" class="p-dialog-v2">
+  <p-header>
+    <div class="text-xl">{{ getTitleMessageDynamicModal() }}</div>
+    <div class="container-button-close">
+      <button type="button" pButton (click)="
+          messageModalCurrentMode !== 'view'
+            ? openCancelConfirmMessageModal()
+            : closeDynamicMessageModal()
+        ">
+        <app-icon-close-square />
+      </button>
+    </div>
+  </p-header>
+  <hr />
+  <main>
+
+    <form [formGroup]="formDynamicMessage">
+      <div class="grid grid-cols-12">
+        <div class="col-span-12">
+          <label for="perfil">Description <span class="custom-redcolor">*</span></label>
+          @if (messageModalCurrentMode !== 'view') {
+          <p-editor #editorRefDynamic formControlName="description" [style]="{ height: '220px' }"
+            (onTextChange)="limitCharacterCountEditor($event, editorRefDynamic, maxLengthDynamic, 'charsUsedDynamic')">
+            <ng-template pTemplate="header">
+              <ng-container *ngTemplateOutlet="editorToolbar"></ng-container>
+            </ng-template>
+          </p-editor>
+          <div class="text-right mt-1" style="font-size: 12px; color: #6c757d;">
+            {{ charsUsedDynamic }}/{{ maxLengthDynamic }} characters
+          </div>
+          } @else {
+          <div class="conteudo-html pl-2" [innerHTML]="descriptionDynamicMessageFormatted"></div>
+          }
+        </div>
+      </div>
+
+      <div class="flex flex-col mt-6 gap-6 sm:flex-row ">
+        <div class="w-full">
+          <label for="perfil">Start Date <span class="custom-redcolor">*</span></label>
+          <br />
+          <p-calendar dateFormat="dd/mm/yy" formControlName="startDate" [showIcon]="true" [showOnFocus]="false"
+            styleClass="custom-calendar-height w-full cursor-pointer" [appendTo]="'body'" [iconDisplay]="'input'"
+            placeholder="Select" (onSelect)="onChangeStartDate($event)" (onInput)="onChangeStartDate($event)"
+            (input)="onDateInputMask($event)">
+            <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
+              <app-icon-calendar (click)="clickCallBack($event)"></app-icon-calendar>
+            </ng-template>
+          </p-calendar>
+        </div>
+        <div class="w-full">
+          <label for="perfil">End Date <span class="custom-redcolor">*</span></label>
+          <br />
+          <p-calendar dateFormat="dd/mm/yy" formControlName="endDate" [showIcon]="true" [showOnFocus]="false"
+            styleClass="custom-calendar-height w-full cursor-pointer" [appendTo]="'body'" [iconDisplay]="'input'"
+            placeholder="Select" (input)="onDateInputMask($event)">
+            <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
+              <app-icon-calendar (click)="clickCallBack($event)"></app-icon-calendar>
+            </ng-template>
+          </p-calendar>
+        </div>
+
+        <div class="w-full">
+          <label for="perfil">Specific Month <span class="custom-redcolor">*</span></label>
+          <br />
+          <p-dropdown [options]="months" formControlName="specificMonthId" optionLabel="name" placeholder="Select"
+            class="drop-month-especifico" appendTo="body" />
+        </div>
+      </div>
+    </form>
+  </main>
+
+  <p-footer class="flex justify-end gap-4">
+    <p-button [label]="messageModalCurrentMode !== 'view' ? 'Cancel' : 'Close'" severity="danger" text="true"
+      styleClass="custom-closesquare" (click)="
+        messageModalCurrentMode !== 'view'
+          ? openCancelConfirmMessageModal()
+          : closeDynamicMessageModal()
+      ">
+      <app-icon-close-square size="24" color="#0F4C5C" />
+    </p-button>
+    <p-button styleClass="custom-saveButton" (click)="openConfirmSaveMessageModal()"
+      *ngIf="messageModalCurrentMode !== 'view'">
+      <app-icon-save size="24" color="#ffffff" />
+      Save
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+
+
+
+<p-dialog header="" Modal="true" [(visible)]="isEnableMessageModalVisibility" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <p-header>
+    <div class="text-xl">Activate Message</div>
+  </p-header>
+  <hr />
+  <main>Do you want to activate the Message?</main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="Not now" severity="danger" text="true" (click)="closeIsEnableMessageModal()"
+      styleClass="custom-confirm-no"></p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="enableMessage()">Yes, activate
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+
+<p-dialog header="" Modal="true" [(visible)]="isDisableMessageModalVisibility" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <p-header>
+    <div class="text-xl">Deactivate Message</div>
+  </p-header>
+  <hr />
+  <main>Do you want to deactivate the Message?</main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="Cancel" severity="danger" text="true" (click)="closeIsDisableMessageModal()"
+      styleClass="custom-confirm-no"></p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="disableMessage()">Deactivate
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+
+<p-dialog header="" Modal="true" [(visible)]="visibleCancelConfirmMessage" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" [style]="{ 'width': '28rem' }" class="p-dialog-v2">
+  <p-header>
+    <div class="text-xl">Cancel {{
+      messageModalCurrentMode === "add"
+      ? "Creation"
+      : "Editing"
+      }}
+    </div>
+  </p-header>
+  <hr />
+  <main>
+    <p>Do you want to cancel?</p>
+    <p>All entered data will be lost.</p>
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="No, keep data" severity="danger" text="true" (click)="closeCancelConfirmMessageModal()"
+      styleClass="custom-confirm-no">
+    </p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="
+        closeCancelConfirmMessageModal();
+        closeDynamicMessageModal();
+        closeFixedMessageModal()
+      ">
+      Yes, cancel
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+
+<p-dialog header="" Modal="true" [(visible)]="confirmSaveMessageModalVisibility" baseZIndex="1" resizable="false"
+  draggable="false" closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <p-header>
+    <div class="text-xl">
+      {{
+      messageModalCurrentMode === "add"
+      ? "Add Message"
+      : "Edit Message"
+      }}
+    </div>
+  </p-header>
+  <hr />
+  <main>
+    @if (messageModalCurrentMode === 'add') {
+    Do you really add new
+    Message?
+    } @else {
+    Do you want to edit the Message?
+    }
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="Not now" severity="danger" text="true" (click)="closeConfirmSaveMessageModal()"
+      styleClass="custom-confirm-no"></p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="
+        currentMessageType == 'dynamic'
+          ? saveOrEditDynamicMessage()
+          : saveOrEditFixedMessage()
+      ">
+      @if (messageModalCurrentMode === 'add') {
+      Yes, create
+      } @else {
+      Yes,
+      edit
+      }
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+
+<p-dialog header="" Modal="true" [(visible)]="isDeleteMessageModalVisibility" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <p-header>
+    <div class="text-xl">Delete Message</div>
+  </p-header>
+  <hr />
+  <main>Do you want to delete the Message?</main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="Not now" severity="danger" text="true" (click)="closeIsDeleteMessageModal()"
+      styleClass="custom-confirm-no"></p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="deleteMessage()">Yes, delete
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+
+<ng-template #editorToolbar>
+  <span class="ql-formats">
+    <select class="ql-size">
+      <option value="small"></option>
+      <option selected></option>
+      <option value="large"></option>
+      <option value="huge"></option>
+    </select>
+  </span>
+  <span class="ql-formats">
+    <select class="ql-font">
+      <option value="SansSerif">Sans Serif</option>
+      <option value="serif">Serif</option>
+      <option value="monospace">Monospace</option>
+    </select>
+  </span>
+  <span class="ql-formats">
+    <button type="button" class="ql-bold" aria-label="Bold"></button>
+    <button type="button" class="ql-italic" aria-label="Italic"></button>
+    <button type="button" class="ql-underline" aria-label="Underline"></button>
+  </span>
+  <span class="ql-formats">
+    <select class="ql-color">
+      <option selected="selected"></option>
+      <option value="#e60000"></option>
+      <option value="#ff9900"></option>
+      <option value="#ffff00"></option>
+      <option value="#008a00"></option>
+      <option value="#0066cc"></option>
+      <option value="#9933ff"></option>
+      <option value="#ffffff"></option>
+      <option value="#facccc"></option>
+      <option value="#ffebcc"></option>
+      <option value="#ffffcc"></option>
+      <option value="#cce8cc"></option>
+      <option value="#cce0f5"></option>
+      <option value="#ebd6ff"></option>
+      <option value="#bbbbbb"></option>
+      <option value="#f06666"></option>
+      <option value="#ffc266"></option>
+      <option value="#ffff66"></option>
+      <option value="#66b966"></option>
+      <option value="#66a3e0"></option>
+      <option value="#c285ff"></option>
+      <option value="#888888"></option>
+      <option value="#a10000"></option>
+      <option value="#b26b00"></option>
+      <option value="#b2b200"></option>
+      <option value="#006100"></option>
+      <option value="#0047b2"></option>
+      <option value="#6b24b2"></option>
+      <option value="#444444"></option>
+      <option value="#5c0000"></option>
+      <option value="#663d00"></option>
+      <option value="#666600"></option>
+      <option value="#003700"></option>
+      <option value="#002966"></option>
+      <option value="#3d1466"></option>
+    </select>
+    <select class="ql-background">
+      <option selected="selected"></option>
+      <option value="#e60000"></option>
+      <option value="#ff9900"></option>
+      <option value="#ffff00"></option>
+      <option value="#008a00"></option>
+      <option value="#0066cc"></option>
+      <option value="#9933ff"></option>
+      <option value="#ffffff"></option>
+      <option value="#facccc"></option>
+      <option value="#ffebcc"></option>
+      <option value="#ffffcc"></option>
+      <option value="#cce8cc"></option>
+      <option value="#cce0f5"></option>
+      <option value="#ebd6ff"></option>
+      <option value="#bbbbbb"></option>
+      <option value="#f06666"></option>
+      <option value="#ffc266"></option>
+      <option value="#ffff66"></option>
+      <option value="#66b966"></option>
+      <option value="#66a3e0"></option>
+      <option value="#c285ff"></option>
+      <option value="#888888"></option>
+      <option value="#a10000"></option>
+      <option value="#b26b00"></option>
+      <option value="#b2b200"></option>
+      <option value="#006100"></option>
+      <option value="#0047b2"></option>
+      <option value="#6b24b2"></option>
+      <option value="#444444"></option>
+      <option value="#5c0000"></option>
+      <option value="#663d00"></option>
+      <option value="#666600"></option>
+      <option value="#003700"></option>
+      <option value="#002966"></option>
+      <option value="#3d1466"></option>
+    </select>
+  </span>
+  <span class="ql-formats">
+    <button class="ql-list q1-box" value="ordered" type="button" title="Number bullets"></button>
+    <button class="ql-list ql-active q1-box" value="bullet" type="button" title="Bullets"></button>
+    <button class="ql-align ql-align-left q1-box" title="left" value=""></button>
+    <button class="ql-align ql-align-center q1-box" title="center" value="center"></button>
+    <button class="ql-align ql-align-right q1-box" title="right" value="right"></button>
+  </span>
+  <span class="ql-formats">
+    <button type="button" class="ql-link" aria-label="Link"></button>
+    <button type="button" class="ql-blockquote" aria-label="Blockquote"></button>
+    <button class="ql-strike q1-box" aria-label="Strikethrough" title="Strikethrough"></button>
+  </span>
+  <span class="ql-formats">
+    <button type="button" class="ql-clean" aria-label="Clean"></button>
+  </span>
+</ng-template>

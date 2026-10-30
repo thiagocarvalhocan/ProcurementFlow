@@ -9,7 +9,7 @@
       </a>
     </div>    
     <nav class="flex-1 sidebar-nav">
-      <div class="sidebar-nav-scroll">
+      <div class="sidebar-nav-scroll" [class.hovering]="!isExpanded && !isMobileOpen && hoveredItemIndex !== null">
         <ul>
           <li
             *ngFor="let item of navItems; let i = index"
@@ -30,7 +30,7 @@
               (click)="
                 item.subItems == undefined
                   ? onClick(item)
-                  : subMenuItems.toggle($event)
+                  : openSubMenu($event, subMenuItems)
               "
             >
               <ng-container *ngIf="isRouteActive(item); else inactiveIcon">
@@ -64,14 +64,14 @@
               </ng-template>
             </a>
       
-            <p-overlayPanel #subMenuItems [autoZIndex]="false">
+            <p-overlayPanel #subMenuItems [autoZIndex]="false" (onHide)="isSubMenuOpen = false; activeSubMenuPanel = null">
               <ul [style]="{ gap: '0px' }">
                 <li
                   *ngFor="let subItem of item.subItems"
                   class="nav-button nav-sub-item-button"
                 >
                   <a
-                    (click)="onClick(subItem, item); subMenuItems.hide()"
+                    (click)="onClick(subItem, item); closeSubMenu()"
                     [routerLink]="item.route + subItem.route"
                     class="full-link"
                   >
@@ -85,4 +85,5 @@
       </div>
     </nav>
   </aside>
+  <div *ngIf="isSubMenuOpen" class="fixed inset-0 z-40" (click)="closeSubMenu()"></div>
 </div>

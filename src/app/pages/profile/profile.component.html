@@ -92,8 +92,8 @@
   (rowsChange)="onRowsChange($event)" (pageChange)="getProfileFeatureActions($event)"></app-paginator>
 
 <p-dialog header="" modal="true" [(visible)]="profileModalVisibility" resizable="false" draggable="false"
-  closable="false" closeOnEscape="false" [style]="{ width: '90%', height: 'auto', overflow: 'hidden' }"
-  class="p-dialog-v2">
+  closable="false" closeOnEscape="false" [style]="{ overflow: 'hidden' }"
+  styleClass="p-dialog-v2 w-[95%] sm:w-[80%]">
   <p-header>
     <div class="text-xl">{{ getModalTitle() }}</div>
     <div class="container-button-close">

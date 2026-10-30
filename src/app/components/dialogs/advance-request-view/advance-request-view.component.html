@@ -1,0 +1,59 @@
+<p-dialog header="View Advance Request - Monthly Budget" [(visible)]="isVisible" [resizable]="false"
+  [draggable]="false" styleClass="custom-modal w-[95%] sm:w-[85%] md:w-[80%]" [modal]="true" closeOnEscape="false"
+  closable="false">
+  <p-header>
+    <div class="custom-dialog-header">
+      <div class="text-xl">
+        View Advance Request - Monthly Budget
+      </div>
+      <div class="divButton">
+        <button type="button" pButton (click)="close()">
+          <app-icon-close-square />
+        </button>
+      </div>
+    </div>
+  </p-header>
+
+  <hr />
+  <main>
+    <div *ngIf="advanceRequestDetail" class="pb-[1.125rem] pt-3">
+      <div class="flex justify-between gap-6 py-6">
+        <div>
+          <div class="custom-tablesubtitle gap-1">Unit</div>
+          <span class="font-table-subtitle pl-3">
+            {{ unitDescriptionCurrent }}
+          </span>
+        </div>
+        <div class="mr-40">
+          <div class="custom-tablesubtitle gap-1">Monthly Budget</div>
+          <span class="font-table-subtitle pl-3">
+            {{ advanceRequestDetail.budgetValue | currency : "BRL" : true : "1.2-2" }}
+          </span>
+        </div>
+      </div>
+      <div [class]="isRequest ? 'font-dialog-sub' : 'font-table-subtitle'">
+        Select below the months to send the budget for the year {{ currentYear }}.
+      </div>
+    </div>
+    <div class="grid grid-nogutter">
+      <div class="col-12">
+        <div class="checkbox-grid">
+          <div *ngFor="let month of months; let i = index" class="checkbox-column">
+            <p-checkbox *ngIf="i < 12" [(ngModel)]="month.requested" binary="true" [label]="month.description"
+              [disabled]="true" styleClass="custom-checkbox"></p-checkbox>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <hr />
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-6">
+      <p-button [rounded]="true" label="Close" severity="danger" [text]="true" (click)="close()"
+        styleClass="custom-closesquare">
+        <app-icon-close-square size="24" color="#0F4C5C" />
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>

@@ -122,7 +122,7 @@
   (rowsChange)="onRowsChange($event)" (pageChange)="getUsers($event)"></app-paginator>
 
 <p-dialog header="" modal="true" [(visible)]="isUserModalVisible" baseZIndex="0" resizable="false" draggable="false"
-  closable="false" closeOnEscape="false" [style]="{ width: '80%', overflow: 'hidden' }" class="p-dialog-v2">
+  closable="false" closeOnEscape="false" [style]="{ overflow: 'hidden' }" styleClass="p-dialog-v2 w-[95%] sm:w-[80%] md:w-[70%]">
   <p-header>
     <div class="text-xl">{{ getModalTitle() }}</div>
     <div class="container-button-close">

@@ -224,7 +224,7 @@ export class UserComponent implements OnInit {
     const payload: any = {
       skip: 0,
       take: this.rows,
-      searchString: this.formSearch.value.searchTerm!,
+      searchString: this.formSearch.value.searchTerm || '',
     };
 
     if (event?.page || event?.page == 0) {

@@ -2,11 +2,7 @@ import { Injectable } from '@angular/core';
 import { AuthenticatedUser } from '../core/auth/models/authenticated-user';
 import { UserFeature } from '../core/auth/models/user-feature';
 
-/**
- * Permission engine. It reads the authenticated user stored by the mock
- * authentication flow and answers feature/action questions used by the
- * sidebar, route guards and page buttons.
- */
+
 @Injectable({
   providedIn: 'root',
 })

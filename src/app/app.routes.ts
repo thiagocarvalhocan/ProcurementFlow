@@ -9,6 +9,8 @@ import { loginGuard } from './guards/login.guard';
 import { NoPermissionComponent } from './pages/no-permission/no-permission.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { UserComponent } from './pages/user/user.component';
+import { RequestMessageComponentt } from './pages/request-message/request-message.component';
+import { AdvanceRequestComponent } from './pages/advance-request/advance-request.component';
 export const routes: Routes = [
   {
     path: '',
@@ -29,6 +31,21 @@ export const routes: Routes = [
         path: 'profiles',
         component: ProfileComponent,
         title: 'Profiles',
+      },
+      {
+        path: 'advance-request',
+        component: AdvanceRequestComponent,
+        title: 'Advance Request'
+      },
+      {
+        path: 'administration',
+        children: [
+          {
+            path: 'request-messages',
+            component: RequestMessageComponentt,
+            title: 'Request Message'
+          },
+        ]
       },
     ],
   },

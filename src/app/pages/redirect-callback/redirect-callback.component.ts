@@ -13,7 +13,7 @@ import { AuthLayoutContentComponent } from '../../components/auth-layout-content
 })
 export class RedirectCallbackComponent {
   constructor(private authService: AuthService) {
-    // The old OAuth callback entry point now only restores a local session.
+
     this.authService.restoreSession()
       ? this.authService.goToHome()
       : this.authService.goToLogin();
