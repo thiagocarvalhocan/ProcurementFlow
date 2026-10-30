@@ -9,7 +9,7 @@ import {
   MockUser,
 } from './mock-api.models';
 
-/** A serialized row keeps the English fields plus the legacy aliases. */
+
 export type MockRow = Record<string, any>;
 
 export const DEFAULT_PAGE_SIZE = 10;
@@ -71,6 +71,7 @@ function sortRows(rows: MockRow[], field: string, direction: string): MockRow[] 
   });
 }
 
+
 /**
  * Applies search, sorting and paging exactly like a REST backend would and
  * answers with both English and legacy pagination names.
@@ -126,6 +127,7 @@ export function serializeUnit(unit: MockUnit): MockRow {
   };
 }
 
+/** A serialized row keeps the English fields plus the legacy aliases. */
 export function serializeUser(user: MockUser): MockRow {
   return {
     ...user,

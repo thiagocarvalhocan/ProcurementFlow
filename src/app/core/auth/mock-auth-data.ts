@@ -3,9 +3,7 @@ import { AuthenticatedUser } from './models/authenticated-user';
 import { FeatureAction } from './models/feature-action';
 import { UserFeature } from './models/user-feature';
 
-/**
- * A demo account available in the local (offline) authentication flow.
- */
+
 export interface MockAccount {
   email: string;
   password: string;
@@ -42,6 +40,18 @@ const administratorFeatures: UserFeature[] = [
     id: 3,
     name: 'Unit Management',
     code: FeatureCode.Units,
+    actions: fullAccessActions(),
+  },
+  {
+    id: 4,
+    name: 'Advance Request',
+    code: FeatureCode.AdvanceRequest,
+    actions: fullAccessActions(),
+  },
+  {
+    id: 5,
+    name: 'Request Message',
+    code: FeatureCode.RequestMessage,
     actions: fullAccessActions(),
   },
 ];
@@ -85,10 +95,7 @@ const viewerUser: AuthenticatedUser = {
   features: viewerFeatures,
 };
 
-/**
- * Accounts accepted by FakeAuthApiService. Passwords are plain text on
- * purpose: this data is public demo content with no real credentials.
- */
+
 export const MOCK_ACCOUNTS: MockAccount[] = [
   {
     email: administratorUser.email,

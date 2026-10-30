@@ -9,11 +9,7 @@ import { MOCK_ACCOUNTS } from './mock-auth-data';
 const SESSION_DURATION_MINUTES = 60;
 const SIMULATED_LATENCY_MILLISECONDS = 450;
 
-/**
- * Local replacement for the authentication endpoint.
- * Validates credentials against the demo accounts and returns a session
- * with a mock bearer token. It never touches HttpClient or the network.
- */
+
 @Injectable({ providedIn: 'root' })
 export class FakeAuthApiService {
   login(credentials: LoginCredentials): Observable<AuthSession> {
@@ -51,10 +47,7 @@ export class FakeAuthApiService {
     };
   }
 
-  /**
-   * Builds an unsigned JWT-shaped token so the UI can read a realistic
-   * bearer value without relying on a real identity provider.
-   */
+  
   private createMockToken(user: AuthenticatedUser, expiresAt: number): string {
     const header = this.encodeSegment({ alg: 'none', typ: 'JWT' });
     const payload = this.encodeSegment({
@@ -74,5 +67,5 @@ export class FakeAuthApiService {
       .replace(/=/g, '')
       .replace(/\+/g, '-')
       .replace(/\//g, '_');
-  }
+}
 }
