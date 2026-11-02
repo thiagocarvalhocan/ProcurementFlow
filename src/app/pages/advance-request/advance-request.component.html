@@ -152,9 +152,9 @@
         </td>
       </tr>
     </ng-template>
-    <ng-template pTemplate="emptyMessage">
+    <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="7">Nenhum registro encontrado.</td>
+        <td colspan="7">No results found</td>
       </tr>
     </ng-template>
   </p-table>
@@ -265,7 +265,7 @@
 </p-dialog>
 
 @if(dynamicMessage){
-<p-dialog header="Warning" [modal]="true" [(visible)]="visibleMessage" [resizable]="false" [draggable]="false"
+<p-dialog header="Warning" [modal]="true" [visible]="true" [resizable]="false" [draggable]="false"
   closable="false" [style]="{ width: '28rem' }" class="p-dialog-alert">
   <p-header>
     <div class="custom-dialog-header">
