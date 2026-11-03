@@ -94,7 +94,6 @@ export class AdvanceRequestComponent implements OnInit {
   isEditDisabled = true;
   visibleCancelConfirm: boolean = false;
   visibleSaveConfirm: boolean = false;
-  visibleMessage: boolean = false;
   isValid: boolean = false;
   newMonthSelected: boolean = false;
   confirmLabel: string = '';
@@ -277,8 +276,8 @@ export class AdvanceRequestComponent implements OnInit {
 
     this.advanceRequestsService.getAdvancedRequestsPaged(payload).subscribe({
       next: (response) => {
-        this.advanceRequests = response.data;
-        this.totalItems = response.totalElements;
+        this.advanceRequests = Array.isArray(response) ? response : (response?.data ?? []);
+        this.totalItems = Array.isArray(response) ? response.length : (response?.totalElements ?? 0);
         this.first = event?.first || 0;
         this.last = Math.min(this.first + this.rows, this.totalItems);
         this.searchInProgress = false;
@@ -450,8 +449,7 @@ export class AdvanceRequestComponent implements OnInit {
   }
 
   closeMessageModal() {
-    this.dynamicMessage = null;
-    this.visibleMessage = false;
+    this.dynamicMessage = undefined;
   }
 
   showConfirmChoice() {
@@ -532,7 +530,6 @@ export class AdvanceRequestComponent implements OnInit {
   onCheckboxChange(month: Month): void {
     if (month.requested) {
       this.getDynamicMessage(month.monthId as number);
-      this.showDynamicMessage();
     } else {
       this.dynamicMessage = undefined;
     }
@@ -544,7 +541,14 @@ export class AdvanceRequestComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.messagesByMonth[monthId] = response;
-          const message = response?.data?.[0] ?? response;
+          const message = Array.isArray(response)
+            ? (response[0] ?? null)
+            : (response?.data?.[0] ?? response);
+          if (!message) {
+            this.dynamicMessage = undefined;
+            this.dynamicMessageFormatted = this.sanitizer.bypassSecurityTrustHtml('');
+            return;
+          }
           this.dynamicMessage = message;
           this.dynamicMessageFormatted = this.sanitizer.bypassSecurityTrustHtml(
             message?.description ?? '',
@@ -558,10 +562,6 @@ export class AdvanceRequestComponent implements OnInit {
           });
         },
       });
-  }
-
-  showDynamicMessage() {
-    this.visibleMessage = true;
   }
 
   allowOnlyNumbers(event: KeyboardEvent) {

@@ -762,6 +762,10 @@ function handleAdvanceRequests(
     const take = Number(context.params['take'] ?? filtered.length);
     const page = filtered.slice(skip, skip + take);
 
+    if (filtered.length === 0) {
+      return ok([]);
+    }
+
     return ok({
       data: page.map((request) => ({ ...request })),
       totalElements: filtered.length,
@@ -897,6 +901,9 @@ function handleAdvanceRequestMessages(
       const skip = Number(context.params['skip'] ?? 0);
       const take = Number(context.params['take'] ?? filtered.length);
       const page = filtered.slice(skip, skip + take);
+      if (filtered.length === 0) {
+        return ok([]);
+      }
       return ok({
         data: page.map((message) => ({ ...message })),
         totalElements: filtered.length,
@@ -912,6 +919,9 @@ function handleAdvanceRequestMessages(
       const filtered = monthId
         ? MOCK_MESSAGES.filter((message) => message.specificMonthId === monthId)
         : MOCK_MESSAGES.slice();
+      if (filtered.length === 0) {
+        return ok([]);
+      }
       return ok({
         data: filtered.map((message) => ({ ...message })),
         totalElements: filtered.length,
