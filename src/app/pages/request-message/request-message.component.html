@@ -125,7 +125,7 @@
   (rowsChange)="onRowsChangeMessageFixed($event)" (pageChange)="getFixedMessages($event)"></app-paginator>
 
 
-<p-dialog header="" Modal="true" [(visible)]="fixedMessageModalVisibility" resizable="false" draggable="false"
+<p-dialog header="" modal="true" [(visible)]="fixedMessageModalVisibility" resizable="false" draggable="false"
   closable="false" closeOnEscape="false" styleClass="w-[90%] sm:w-[75%] lg:w-[60%]" class="p-dialog-v2">
   <p-header>
     <div class="text-xl">{{ getTitleMessageFixedModal() }}</div>
@@ -339,7 +339,7 @@
   (rowsChange)="onRowsChangeDynamicMessage($event)" (pageChange)="getDynamicMessages($event)"></app-paginator>
 
 
-<p-dialog header="" Modal="true" [(visible)]="dynamicMessageModalVisibility" resizable="false" draggable="false"
+<p-dialog header="" modal="true" [(visible)]="dynamicMessageModalVisibility" resizable="false" draggable="false"
   closable="false" closeOnEscape="false" styleClass="w-[90%] sm:w-[75%] lg:w-[60%]" class="p-dialog-v2">
   <p-header>
     <div class="text-xl">{{ getTitleMessageDynamicModal() }}</div>
@@ -431,7 +431,7 @@
 
 
 
-<p-dialog header="" Modal="true" [(visible)]="isEnableMessageModalVisibility" resizable="false" draggable="false"
+<p-dialog header="" modal="true" [(visible)]="isEnableMessageModalVisibility" resizable="false" draggable="false"
   closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
   <p-header>
     <div class="text-xl">Activate Message</div>
@@ -448,7 +448,7 @@
 </p-dialog>
 
 
-<p-dialog header="" Modal="true" [(visible)]="isDisableMessageModalVisibility" resizable="false" draggable="false"
+<p-dialog header="" modal="true" [(visible)]="isDisableMessageModalVisibility" resizable="false" draggable="false"
   closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
   <p-header>
     <div class="text-xl">Deactivate Message</div>
@@ -465,7 +465,7 @@
 </p-dialog>
 
 
-<p-dialog header="" Modal="true" [(visible)]="visibleCancelConfirmMessage" resizable="false" draggable="false"
+<p-dialog header="" modal="true" [(visible)]="visibleCancelConfirmMessage" resizable="false" draggable="false"
   closable="false" closeOnEscape="false" [style]="{ 'width': '28rem' }" class="p-dialog-v2">
   <p-header>
     <div class="text-xl">Cancel {{
@@ -496,7 +496,7 @@
 </p-dialog>
 
 
-<p-dialog header="" Modal="true" [(visible)]="confirmSaveMessageModalVisibility" baseZIndex="1" resizable="false"
+<p-dialog header="" modal="true" [(visible)]="confirmSaveMessageModalVisibility" baseZIndex="1" resizable="false"
   draggable="false" closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
   <p-header>
     <div class="text-xl">
@@ -536,7 +536,7 @@
 </p-dialog>
 
 
-<p-dialog header="" Modal="true" [(visible)]="isDeleteMessageModalVisibility" resizable="false" draggable="false"
+<p-dialog header="" modal="true" [(visible)]="isDeleteMessageModalVisibility" resizable="false" draggable="false"
   closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
   <p-header>
     <div class="text-xl">Delete Message</div>
