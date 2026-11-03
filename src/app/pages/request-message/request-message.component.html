@@ -510,10 +510,10 @@
   <hr />
   <main>
     @if (messageModalCurrentMode === 'add') {
-    Do you really add new
+    Do you really want to add a new
     Message?
     } @else {
-    Do you want to edit the Message?
+    Do you really want to edit the Message?
     }
   </main>
   <hr />
@@ -542,7 +542,7 @@
     <div class="text-xl">Delete Message</div>
   </p-header>
   <hr />
-  <main>Do you want to delete the Message?</main>
+  <main>Do you really want to delete the Message?</main>
   <hr />
   <p-footer class="flex justify-end gap-4">
     <p-button label="Not now" severity="danger" text="true" (click)="closeIsDeleteMessageModal()"

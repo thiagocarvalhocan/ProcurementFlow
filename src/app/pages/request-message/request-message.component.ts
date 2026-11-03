@@ -571,10 +571,10 @@ export class RequestMessageComponentt implements AfterViewInit {
   getTitleMessageFixedModal() {
     let title = 'View';
 
-    if (this.messageModalCurrentMode == 'add') title = 'Add Nova';
+    if (this.messageModalCurrentMode == 'add') title = 'Add';
     else if (this.messageModalCurrentMode == 'edit') title = 'Edit';
 
-    return title + ' Message Fixed';
+    return title + ' Fixed Message';
   }
 
 
@@ -821,7 +821,7 @@ export class RequestMessageComponentt implements AfterViewInit {
   getTitleMessageDynamicModal() {
     let title = 'View';
 
-    if (this.messageModalCurrentMode == 'add') title = 'Add Nova';
+    if (this.messageModalCurrentMode == 'add') title = 'Add';
     else if (this.messageModalCurrentMode == 'edit') title = 'Edit';
 
     return title + ' Message Dynamic';
