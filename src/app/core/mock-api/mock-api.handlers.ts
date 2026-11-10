@@ -51,13 +51,11 @@ function persist(name: string, value: unknown): void {
   if (typeof localStorage === 'undefined') return;
   try {
     localStorage.setItem(STORAGE_PREFIX + name, JSON.stringify(value));
-  } catch {
-  }
+  } catch {}
 }
 
 const normalize = (value: string | undefined): string =>
   (value ?? '').toLowerCase();
-
 
 /**
  * Removes the origin and the `/api` prefix and returns only the resource
@@ -71,8 +69,6 @@ export function extractMockPath(url: string): string {
   if (match) {
     return match[1] ?? '';
   }
-
-
 
   // Legacy base URLs were built without the separating slash
   // (`/api` + `page-access/leave`); they still have to be answered locally.
@@ -667,9 +663,8 @@ function buildMonthRows(months?: any[]): any[] {
     statusChangeReason: month.statusChangeReason ?? null,
     linkedProcessId: month.linkedProcessId ?? null,
     accountantUserId: month.accountantUserId ?? 1,
-    idRequisicaoAdiantamentoMes:
-      month.idRequisicaoAdiantamentoMes ?? index + 1,
-    idRequisicaoAdiantamento: month.idRequisicaoAdiantamento ?? 0,
+    idAdvanceRequestMonth: month.idAdvanceRequestMonth ?? index + 1,
+    idAdvanceRequest: month.idAdvanceRequest ?? 0,
   }));
 }
 
@@ -691,17 +686,16 @@ function buildAdvanceRequestRow(id: number, payload?: any): any {
     year: payload?.year ?? new Date().getFullYear(),
     requestedMonths,
     lastUpdatedDate: new Date().toISOString(),
-    dataUltimaAtualizacao: new Date().toISOString(),
+    dateLastUpdate: new Date().toISOString(),
     budgetValue: payload?.budgetValue ?? 1000,
     message: payload?.message ?? '<p>Advance request message</p>',
     months,
   };
 }
 
-const MOCK_ADVANCE_REQUESTS: any[] = loadPersisted(
-  'advance_requests_v1',
-  [buildAdvanceRequestRow(1)],
-);
+const MOCK_ADVANCE_REQUESTS: any[] = loadPersisted('advance_requests_v1', [
+  buildAdvanceRequestRow(1),
+]);
 
 function handleAdvanceRequests(
   context: MockRequestContext,
@@ -726,7 +720,9 @@ function handleAdvanceRequests(
       const target = MOCK_ADVANCE_REQUESTS.find(
         (request) => request.id === toNumber(action),
       );
-      return target ? ok({ ...target }) : failure(404, 'Advance request not found');
+      return target
+        ? ok({ ...target })
+        : failure(404, 'Advance request not found');
     }
 
     let filtered = MOCK_ADVANCE_REQUESTS.slice();
@@ -751,7 +747,11 @@ function handleAdvanceRequests(
     const needle = searchString.trim().toLowerCase();
     if (needle) {
       filtered = filtered.filter((request) =>
-        [request.unitDescription, request.budgetTypeDescription, request.requestedMonths]
+        [
+          request.unitDescription,
+          request.budgetTypeDescription,
+          request.requestedMonths,
+        ]
           .join(' ')
           .toLowerCase()
           .includes(needle),
@@ -814,10 +814,6 @@ const MOCK_MESSAGES: any[] = loadPersisted('messages_v1', [
     specificMonthId: 1,
     messageType: 'Fixed',
     messageTypeId: 1,
-    descricao: '<p>Sample request message</p>',
-    dataInicio: '2025-01-01',
-    dataFim: '2025-12-31',
-    mesEspecificoId: 1,
   },
   {
     active: true,
@@ -829,10 +825,6 @@ const MOCK_MESSAGES: any[] = loadPersisted('messages_v1', [
     specificMonthId: 2,
     messageType: 'Dynamic',
     messageTypeId: 2,
-    descricao: '<p>Sample dynamic message</p>',
-    dataInicio: '2025-01-01',
-    dataFim: '2025-12-31',
-    mesEspecificoId: 2,
   },
 ]);
 
@@ -849,11 +841,24 @@ function toMessageId(value: any): number | null {
 function buildMessageRow(id: number, payload?: any, fallback?: any): any {
   const source = payload ?? fallback ?? {};
   const specificMonthId = toMessageId(
-    source.specificMonthId ?? source.mesEspecificoId ?? fallback?.specificMonthId ?? 1,
+    source.specificMonthId ??
+      source.monthSpecificId ??
+      fallback?.specificMonthId ??
+      1,
   );
   const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
   const specificMonth =
     source.specificMonth ??
@@ -877,10 +882,6 @@ function buildMessageRow(id: number, payload?: any, fallback?: any): any {
     specificMonthId: specificMonthId ?? 1,
     messageType: isDynamic ? 'Dynamic' : 'Fixed',
     messageTypeId: isDynamic ? 2 : 1,
-    descricao: description,
-    dataInicio: startDate,
-    dataFim: endDate,
-    mesEspecificoId: specificMonthId ?? 1,
   };
 }
 
@@ -892,11 +893,14 @@ function handleAdvanceRequestMessages(
 
   if (context.method === 'get') {
     if (action === 'paged') {
-      const typeParam = context.params['IdTypeMessage'] ?? context.params['idTypeMessage'];
+      const typeParam =
+        context.params['IdTypeMessage'] ?? context.params['idTypeMessage'];
       let filtered = MOCK_MESSAGES.slice();
       if (typeParam) {
         const typeId = Number(typeParam);
-        filtered = filtered.filter((message) => message.messageTypeId === typeId);
+        filtered = filtered.filter(
+          (message) => message.messageTypeId === typeId,
+        );
       }
       const skip = Number(context.params['skip'] ?? 0);
       const take = Number(context.params['take'] ?? filtered.length);
@@ -908,9 +912,6 @@ function handleAdvanceRequestMessages(
         data: page.map((message) => ({ ...message })),
         totalElements: filtered.length,
         totalPages: Math.max(1, Math.ceil(filtered.length / (take || 1))),
-        dados: page.map((message) => ({ ...message })),
-        totalElementos: filtered.length,
-        totalPaginas: Math.max(1, Math.ceil(filtered.length / (take || 1))),
       });
     }
 
@@ -926,9 +927,6 @@ function handleAdvanceRequestMessages(
         data: filtered.map((message) => ({ ...message })),
         totalElements: filtered.length,
         totalPages: 1,
-        dados: filtered.map((message) => ({ ...message })),
-        totalElementos: filtered.length,
-        totalPaginas: 1,
       });
     }
 
@@ -973,8 +971,10 @@ function handleAdvanceRequestMessages(
     );
     if (!target) return failure(404, 'Message not found');
     const subAction = normalize(segments[2]);
-    if (subAction === 'activate' || subAction === 'enable') target.active = true;
-    if (subAction === 'deactivate' || subAction === 'disable') target.active = false;
+    if (subAction === 'activate' || subAction === 'enable')
+      target.active = true;
+    if (subAction === 'deactivate' || subAction === 'disable')
+      target.active = false;
     persist('messages_v1', MOCK_MESSAGES);
     return ok({ ...target });
   }
@@ -997,7 +997,6 @@ function handleFallback(
   segments: string[],
 ): HttpResponse<unknown> {
   const resource = normalize(segments[0]);
-
 
   // The page-access bookkeeping endpoint is a no-op in the offline build.
   if (resource.startsWith('page-access') || resource.startsWith('pageaccess')) {

@@ -1,0 +1,227 @@
+<p-toast />
+<p-card>
+  <div>
+    <div>
+      <form id="formChangeOwner" [formGroup]="formChangeOwner" class="flex flex-col gap-6">
+        <div class="flex flex-col justify-between gap-1">
+          <div class="flex flex-col items-center justify-between gap-2 min-[646px]:flex-row">
+            <div class="font-card-title-bold text-black">Owner</div>
+          </div>
+        </div>
+        <div class="flex flex-col justify-between gap-1">
+          <div class="flex flex-col justify-between gap-2 md:flex-row items-center">
+            <div class="w-[50%] flex-col flex justify-between">
+              <div *ngIf="userPermissionService.hasPermission('LinkUsersUnit', 'View')">
+                <div class="custom-tablesubtitle gap-1">Owner</div>
+                <p-dropdown id="users" class="w-full" [options]="users" optionValue="id" optionLabel="label"
+                  formControlName="id" placeholder="Select" virtualScroll="true" virtualScrollItemSize="40"
+                  autoWidth="false" [style]="{ width: '100%' }" (onChange)="openConfirmChangeOwner($event.value)">
+                </p-dropdown>
+              </div>
+            </div>
+            <div class="flex items-center mt-4">
+              <p-button *ngIf="mode != 'view' && userPermissionService.hasPermission('LinkUsersUnit', 'View')"
+                [pTooltip]="'View History'" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip"
+                styleClass="custom-saveButton justify-end" (onClick)="openViewHistory()">
+                <app-icon-view color="white" />
+                View
+              </p-button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</p-card>
+
+<br />
+
+<p-card *ngIf="userPermissionService.hasPermission('LinkUsersUnit', 'View')">
+  <div class="flex flex-col justify-between gap-6 mb-6">
+    <div class="flex flex-col items-center justify-between gap-2 min-[646px]:flex-row">
+      <div class="font-card-title-bold text-black">Linked Users</div>
+    </div>
+    <div class="flex gap-3 items-center" *ngIf="mode != 'view'">
+      <p-inputSwitch [(ngModel)]="showInactive" (ngModelChange)="onChangeInactive()"
+        styleClass="custom-inputswitch mt-2" />
+      <div class="custom-tablesubtitle ml-0">Show Inactive</div>
+    </div>
+  </div>
+
+  <p-table #tb id="tableLinkedUsers" responsiveLayout="stack" [breakpoint]="'960px'"
+    [tableStyle]="{ 'min-width': '50rem' }" [lazy]="true" (onLazyLoad)="getUsersPaginated($event)"
+    [value]="usersPaginated!" [paginator]="false">
+    <ng-template pTemplate="header">
+      <tr>
+        @for (item of headersTableLinkedUsers; track item.title) { @if
+        (item.key) {
+        <th pTooltip="Sort" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [pSortableColumn]="item.key"
+          class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}<p-sortIcon [field]="item.key" />
+          </div>
+        </th>
+        } @else {
+        <th class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}
+          </div>
+        </th>
+        } }
+        @if(mode != 'view'){<th class="text-center min-w-[60px] p-2">Actions</th>}
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-user>
+      <tr>
+        <td>{{ user.registration }}</td>
+        <td>{{ user.name }}</td>
+        <td>{{ user.descriptionProfile }}</td>
+        <td>
+          <span class="p-column-title"></span>
+          <p-tag [value]="user.status ? 'Active' : 'Inactive'" [severity]="getSeverityStatusMessage(user.status)" />
+        </td>
+        @if(mode != 'view'){<td class="flex items-center justify-center">
+          <p-button [pTooltip]="user.status ? 'Deactivate' : 'Activate'" tooltipPosition="bottom"
+            tooltipStyleClass="custom-tooltip" text="true" styleClass="custom-tablebutton"
+            (click)="openConfirmActivateDeactivate(user.id, user.status)" [disabled]="
+              !userPermissionService.hasPermission(
+                'LinkUsersUnit',
+                'Edit'
+              )
+            ">
+            <i [class]="user.status ? 'pi pi-ban' : 'pi pi-check-circle'"
+              [style]="user.status ? 'color: #bd2130' : 'color: #12684C'" style="padding-top: 4px; font-size: 20px"></i>
+          </p-button>
+        </td>}
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="footer"> </ng-template>
+    <ng-template pTemplate="paginatorleft">
+      <span>{{ totalItems }} itens</span>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7">No records found</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<app-paginator [first]="first" [last]="last" [totalItems]="totalItems" [rows]="rows" [options]="options"
+  (rowsChange)="onRowsChange($event)" (pageChange)="getUsersPaginated($event)"></app-paginator>
+
+<p-dialog header="" modal="true" [(visible)]="isVisibleConfirmActivateDeactivate" baseZIndex="1" resizable="false"
+  draggable="false" closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <p-header>
+    {{ modalConfirmMode === "activate" ? " Activate User" : "Deactivate User" }}
+  </p-header>
+  <hr />
+  <main>
+    @if (modalConfirmMode === 'activate') {
+    Do you really want to activate the user's access?
+    } @else {
+    Do you really want to deactivate the user's access?
+    }
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button severity="danger" text="true" (click)="closeConfirmActivateDeactivate()" styleClass="custom-confirm-no">
+      Not now
+    </p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="
+        modalConfirmMode === 'activate' ? activateUser() : deactivateUser()
+      ">
+      @if (modalConfirmMode === 'activate') { Yes, activate } @else { Yes, deactivate
+      }
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="" modal="true" [(visible)]="isVisibleConfirmChangeOwner" baseZIndex="1" resizable="false"
+  draggable="false" closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <p-header> Change Owner </p-header>
+  <hr />
+  <main>Are you sure you want to change the owner?</main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button severity="danger" text="true" (click)="isVisibleConfirmChangeOwner = false; getUsers()"
+      styleClass="custom-confirm-no">
+      Not now
+    </p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="changeOwner(idSelectedUserOwner)">
+      Yes, confirm
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="" modal="true" [(visible)]="isVisibleViewHistoryModal" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" class="p-dialog-v2 custom-table-modal"
+  [style]="{ width: '70%', 'min-height': '450px' }">
+  <p-header>
+    <div class="">Owner Change History</div>
+    <div class="container-button-close">
+      <button type="button" pButton (click)="isVisibleViewHistoryModal = false">
+        <app-icon-close-square />
+      </button>
+    </div>
+  </p-header>
+  <hr />
+  <main class="flex flex-col justify-between">
+    <p-table #tbHistory id="tableViewHistory" *ngIf="
+        userPermissionService.hasPermission('LinkUsersUnit', 'View')
+      " responsiveLayout="stack" [breakpoint]="'960px'" [tableStyle]="{ 'min-width': '50rem' }" [lazy]="true"
+      (onLazyLoad)="getHistoryPaginated($event)" [value]="historyPaginated!" [paginator]="false" [customSort]="false">
+      <ng-template pTemplate="header">
+        <tr>
+          @for (item of headersTableHistory; track item.title) { @if
+          (item.key) {
+          <th [pSortableColumn]="item.key" class="items-center ">
+            <div class="flex items-center w-full justify-between">
+              {{ item.title }}<p-sortIcon [field]="item.key" />
+            </div>
+          </th>
+          } @else {
+          <th class="items-center">
+            <div class="flex items-center w-full justify-between">
+              {{ item.title }}
+            </div>
+          </th>
+          } }
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-history>
+        <tr>
+          <td>{{ history.occurrence }}</td>
+          <td>{{ history.monthReference }}</td>
+          <td>{{ history.dateHourAction | date: 'dd/MM/yyyy' }} @if(history.dateHourAction | date: 'HH:mm'){ às } {{
+            history.dateHourAction | date: 'HH:mm' }} </td>
+          <td>{{ history.registrationName }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-itens> </ng-template>
+      <ng-template pTemplate="paginatorleft">
+        <span>{{ totalItemsHistory }} items</span>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7">No records found</td>
+        </tr>
+      </ng-template>
+    </p-table>
+    <span class="justify-end">
+      <hr />
+    </span>
+
+    <app-paginator [first]="firstHistory" [last]="lastHistory" [totalItems]="totalItemsHistory" [rows]="rowsHistory"
+      [options]="optionsHistory" (rowsChange)="onRowsChangeHistory($event)"
+      (pageChange)="getHistoryPaginated($event)"></app-paginator>
+
+  </main>
+  <hr>
+  <p-footer class="flex justify-end gap-4">
+    <p-button [label]="'Close'" severity="danger" text="true" styleClass="custom-closesquare"
+      (click)="isVisibleViewHistoryModal = false">
+      <app-icon-close-square size="24" color="#0F4C5C" />
+    </p-button>
+  </p-footer>
+</p-dialog>

@@ -76,7 +76,7 @@ export class RequestMessageComponentt implements AfterViewInit {
   [x: string]: any;
   sortStates: { [key: string]: number } = {};
   editorCharacterLimitExceeded: boolean = false;
-  isValidEditDataInicio: boolean = false;
+  isValidEditStartDate: boolean = false;
   @ViewChild('tb') tb!: Table;
   @ViewChild('tb2') tb2!: Table;
   @ViewChild('editorRef') editorRef!: Editor;
@@ -108,7 +108,6 @@ export class RequestMessageComponentt implements AfterViewInit {
   saveInProgress = false;
   form!: FormGroup;
 
-
   fixedMessages: AdvanceRequestMessageResponse[] = [];
   rowsTableFixedMessage: number = 10;
   firstTableFixedMessage: number = 0;
@@ -138,8 +137,6 @@ export class RequestMessageComponentt implements AfterViewInit {
   charsUsedDynamic: number = 0;
   maxLengthFixed: number = 1000;
   maxLengthDynamic: number = 1000;
-  isValidEditStartDate: boolean = false;
-
 
   dynamicMessages: AdvanceRequestMessageResponse[] = [];
   rowsTableDynamicMessage: number = 10;
@@ -173,7 +170,7 @@ export class RequestMessageComponentt implements AfterViewInit {
     private service: AdvanceRequestMessageService,
     public userPermissionService: UserPermissionService,
     private cdr: ChangeDetectorRef,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
   ) {
     this.formFixedMessage = this.formBuilder.group({
       id: [null],
@@ -191,10 +188,12 @@ export class RequestMessageComponentt implements AfterViewInit {
     });
 
     this.descriptionFixedMessageFormatted =
-      this.sanitizer.bypassSecurityTrustHtml(this.descriptionFixedMessage || '');
+      this.sanitizer.bypassSecurityTrustHtml(
+        this.descriptionFixedMessage || '',
+      );
     this.descriptionDynamicMessageFormatted =
       this.sanitizer.bypassSecurityTrustHtml(
-        this.descriptionDynamicMessage || ''
+        this.descriptionDynamicMessage || '',
       );
   }
 
@@ -213,10 +212,9 @@ export class RequestMessageComponentt implements AfterViewInit {
     return value.replace(/(<([^>]+)>)/gi, ' ');
   }
 
-
   openIsDeleteMessageModal(
     Message: AdvanceRequestMessageResponse,
-    currentMessageType: 'fixed' | 'dynamic'
+    currentMessageType: 'fixed' | 'dynamic',
   ) {
     this.selectedMessage = Message;
     this.isDeleteMessageModalVisibility = true;
@@ -260,10 +258,9 @@ export class RequestMessageComponentt implements AfterViewInit {
     });
   }
 
-
   openIsEnableMessageModal(
     Message: AdvanceRequestMessageResponse,
-    currentMessageType: 'fixed' | 'dynamic'
+    currentMessageType: 'fixed' | 'dynamic',
   ) {
     this.selectedMessage = Message;
     this.isEnableMessageModalVisibility = true;
@@ -307,10 +304,9 @@ export class RequestMessageComponentt implements AfterViewInit {
     });
   }
 
-
   openIsDisableMessageModal(
     Message: AdvanceRequestMessageResponse,
-    currentMessageType: 'fixed' | 'dynamic'
+    currentMessageType: 'fixed' | 'dynamic',
   ) {
     this.selectedMessage = Message;
     this.isDisableMessageModalVisibility = true;
@@ -354,16 +350,14 @@ export class RequestMessageComponentt implements AfterViewInit {
     });
   }
 
-
   openCancelConfirmMessageModal() {
     this.visibleCancelConfirmMessage = true;
   }
 
   closeCancelConfirmMessageModal() {
     this.visibleCancelConfirmMessage = false;
-    this.isValidEditDataInicio = false;
+    this.isValidEditStartDate = false;
   }
-
 
   openConfirmSaveMessageModal(type?: 'fixed') {
     const isValidForm = type
@@ -382,13 +376,12 @@ export class RequestMessageComponentt implements AfterViewInit {
       return;
     }
 
-
     const startDateValue = this.form.value.startDate;
     if (startDateValue) {
       const startDate = new Date(startDateValue);
-      const dataHoje = new Date();
+      const todayDate = new Date();
       startDate.setHours(0, 0, 0, 0);
-      dataHoje.setHours(0, 0, 0, 0);
+      todayDate.setHours(0, 0, 0, 0);
     }
 
     if (
@@ -425,13 +418,13 @@ export class RequestMessageComponentt implements AfterViewInit {
     }
 
     if (this.selectedMessage?.id) {
-      if (this.isValidEditDataInicio) {
+      if (this.isValidEditStartDate) {
         const startDate = new Date(this.form.value.startDate);
-        const dataHoje = new Date();
+        const todayDate = new Date();
 
         startDate.setHours(0, 0, 0, 0);
-        dataHoje.setHours(0, 0, 0, 0);
-        if (startDate.getTime() < dataHoje.getTime()) {
+        todayDate.setHours(0, 0, 0, 0);
+        if (startDate.getTime() < todayDate.getTime()) {
           this.messageService.add({
             life: 5000,
             severity: 'error',
@@ -446,11 +439,11 @@ export class RequestMessageComponentt implements AfterViewInit {
     } else {
       if (this.form?.value?.startDate && this.form?.value?.endDate) {
         const startDate = new Date(this.form.value.startDate);
-        const dataHoje = new Date();
+        const todayDate = new Date();
 
         startDate.setHours(0, 0, 0, 0);
-        dataHoje.setHours(0, 0, 0, 0);
-        if (startDate.getTime() < dataHoje.getTime()) {
+        todayDate.setHours(0, 0, 0, 0);
+        if (startDate.getTime() < todayDate.getTime()) {
           this.messageService.add({
             life: 5000,
             severity: 'error',
@@ -469,7 +462,6 @@ export class RequestMessageComponentt implements AfterViewInit {
   closeConfirmSaveMessageModal() {
     this.confirmSaveMessageModalVisibility = false;
   }
-
 
   onRowsChangeMessageFixed(newRows: number): void {
     this.rowsTableFixedMessage = newRows;
@@ -512,23 +504,21 @@ export class RequestMessageComponentt implements AfterViewInit {
         this.sortStates[field] = 0;
       }
 
-
       for (let key in this.sortStates) {
         if (key !== field) this.sortStates[key] = 0;
       }
 
       if (this.sortStates[field] === 1) {
         this.sortBy = field;
-        this.sortDirection = field == 'ativo' ? 'Descending' : 'Ascending';
+        this.sortDirection = field == 'active' ? 'Descending' : 'Ascending';
         payload.sortBy = this.sortBy;
         payload.sortDirection = this.sortDirection;
       } else if (this.sortStates[field] === -1) {
         this.sortBy = field;
-        this.sortDirection = field == 'ativo' ? 'Ascending' : 'Descending';
+        this.sortDirection = field == 'active' ? 'Ascending' : 'Descending';
         payload.sortBy = this.sortBy;
         payload.sortDirection = this.sortDirection;
       } else {
-
         this.sortBy = '';
         this.sortDirection = '';
         delete payload.sortBy;
@@ -555,7 +545,7 @@ export class RequestMessageComponentt implements AfterViewInit {
         this.firstTableFixedMessage = event?.first || 0;
         this.lastTableFixedMessage = Math.min(
           this.firstTableFixedMessage + this.rowsTableFixedMessage,
-          this.totalItemsTableFixedMessage
+          this.totalItemsTableFixedMessage,
         );
         this.loadingFixedMessages = false;
       },
@@ -577,10 +567,9 @@ export class RequestMessageComponentt implements AfterViewInit {
     return title + ' Fixed Message';
   }
 
-
   openFixedMessageModal(
     mode: 'edit' | 'add' | 'view',
-    fixedMessage: AdvanceRequestMessageResponse | null
+    fixedMessage: AdvanceRequestMessageResponse | null,
   ) {
     this.currentMessageType = 'fixed';
     this.formFixedMessage.reset();
@@ -598,11 +587,13 @@ export class RequestMessageComponentt implements AfterViewInit {
       this.descriptionFixedMessage = fixedMessage.description;
       this.descriptionFixedMessageFormatted =
         this.sanitizer.bypassSecurityTrustHtml(
-          this.descriptionFixedMessage || ''
+          this.descriptionFixedMessage || '',
         );
       this.charsUsedFixed =
-        this.removeDescriptionTags(this.descriptionFixedMessage || '').length < 1000
-          ? this.removeDescriptionTags(this.descriptionFixedMessage || '').length
+        this.removeDescriptionTags(this.descriptionFixedMessage || '').length <
+        1000
+          ? this.removeDescriptionTags(this.descriptionFixedMessage || '')
+              .length
           : 1000;
 
       this.formFixedMessage
@@ -632,9 +623,8 @@ export class RequestMessageComponentt implements AfterViewInit {
     this.formFixedMessage.reset();
     this.selectedMessage = null;
     this.descriptionFixedMessage = '';
-    this.isValidEditDataInicio = false;
+    this.isValidEditStartDate = false;
   }
-
 
   saveOrEditFixedMessage() {
     const edit = this.formFixedMessage.get('id')?.value;
@@ -718,7 +708,6 @@ export class RequestMessageComponentt implements AfterViewInit {
     });
   }
 
-
   onRowsChangeDynamicMessage(newRows: number): void {
     this.rowsTableDynamicMessage = newRows;
     this.firstTableDynamicMessage = 0;
@@ -760,7 +749,6 @@ export class RequestMessageComponentt implements AfterViewInit {
         this.sortStates[field] = 0;
       }
 
-
       for (let key in this.sortStates) {
         if (key !== field) this.sortStates[key] = 0;
       }
@@ -768,17 +756,16 @@ export class RequestMessageComponentt implements AfterViewInit {
       if (this.sortStates[field] === 1) {
         this.sortByDynamic = field;
         this.sortDirectionDynamic =
-          field == 'ativo' ? 'Descending' : 'Ascending';
+          field == 'active' ? 'Descending' : 'Ascending';
         payload.sortBy = this.sortByDynamic;
         payload.sortDirection = this.sortDirectionDynamic;
       } else if (this.sortStates[field] === -1) {
         this.sortByDynamic = field;
         this.sortDirectionDynamic =
-          field == 'ativo' ? 'Ascending' : 'Descending';
+          field == 'active' ? 'Ascending' : 'Descending';
         payload.sortBy = this.sortByDynamic;
         payload.sortDirection = this.sortDirectionDynamic;
       } else {
-
         this.sortByDynamic = '';
         this.sortDirectionDynamic = '';
         delete payload.sortBy;
@@ -805,7 +792,7 @@ export class RequestMessageComponentt implements AfterViewInit {
         this.firstTableDynamicMessage = event?.first || 0;
         this.lastTableDynamicMessage = Math.min(
           this.firstTableDynamicMessage + this.rowsTableDynamicMessage,
-          this.totalItemsTableDynamicMessage
+          this.totalItemsTableDynamicMessage,
         );
         this.loadingDynamicMessages = false;
       },
@@ -827,10 +814,9 @@ export class RequestMessageComponentt implements AfterViewInit {
     return title + ' Message Dynamic';
   }
 
-
   openDynamicMessageModal(
     mode: 'edit' | 'add' | 'view',
-    dynamicMessage: AdvanceRequestMessageResponse | null
+    dynamicMessage: AdvanceRequestMessageResponse | null,
   ) {
     this.currentMessageType = 'dynamic';
     this.formDynamicMessage.reset();
@@ -848,11 +834,11 @@ export class RequestMessageComponentt implements AfterViewInit {
       this.descriptionDynamicMessage = dynamicMessage.description;
       this.descriptionDynamicMessageFormatted =
         this.sanitizer.bypassSecurityTrustHtml(
-          this.descriptionDynamicMessage || ''
+          this.descriptionDynamicMessage || '',
         );
       this.charsUsedDynamic =
-        this.removeDescriptionTags(this.descriptionDynamicMessage || '').length <
-        1000
+        this.removeDescriptionTags(this.descriptionDynamicMessage || '')
+          .length < 1000
           ? this.removeDescriptionTags(this.descriptionDynamicMessage || '')
               .length
           : 1000;
@@ -867,8 +853,8 @@ export class RequestMessageComponentt implements AfterViewInit {
         .get('specificMonthId')
         ?.setValue(
           this.months.find(
-            (m: any) => m.code == dynamicMessage?.specificMonthId!.toString()
-          )
+            (m: any) => m.code == dynamicMessage?.specificMonthId!.toString(),
+          ),
         );
       this.form = this.formDynamicMessage;
 
@@ -891,9 +877,8 @@ export class RequestMessageComponentt implements AfterViewInit {
     this.formDynamicMessage.reset();
     this.selectedMessage = null;
     this.descriptionDynamicMessage = '';
-    this.isValidEditDataInicio = false;
+    this.isValidEditStartDate = false;
   }
-
 
   saveOrEditDynamicMessage() {
     const edit = this.formDynamicMessage.get('id')?.value;
@@ -912,9 +897,7 @@ export class RequestMessageComponentt implements AfterViewInit {
       payload.specificMonthId = +payload.specificMonthId.code;
     else payload.specificMonthId = null;
 
-    edit
-      ? this.dynamicMessageEdit(payload)
-      : this.dynamicMessageSave(payload);
+    edit ? this.dynamicMessageEdit(payload) : this.dynamicMessageSave(payload);
   }
 
   dynamicMessageEdit(payload: AdvanceMessage) {
@@ -983,7 +966,6 @@ export class RequestMessageComponentt implements AfterViewInit {
     });
   }
 
-
   private addDays(date: Date, days: number) {
     const newDate = new Date(date);
     newDate.setDate(date.getDate() + days);
@@ -1030,9 +1012,7 @@ export class RequestMessageComponentt implements AfterViewInit {
     event: EditorTextChangeEvent,
     editorRef: Editor,
     maxLength: number,
-    counterProperty:
-      | 'charsUsedFixed'
-      | 'charsUsedDynamic'
+    accountantProperty: 'charsUsedFixed' | 'charsUsedDynamic',
   ) {
     const quill: Quill = editorRef?.quill;
     if (!quill) {
@@ -1044,10 +1024,10 @@ export class RequestMessageComponentt implements AfterViewInit {
     if (plainText.length > maxLength) {
       const excessLength = plainText.length - maxLength;
       quill.deleteText(maxLength, excessLength);
-      this[counterProperty] = maxLength;
+      this[accountantProperty] = maxLength;
       this.editorCharacterLimitExceeded = true;
     } else {
-      this[counterProperty] = plainText.length;
+      this[accountantProperty] = plainText.length;
       this.editorCharacterLimitExceeded = false;
     }
     if (editorRef === this.editorRefDynamic) {
@@ -1089,16 +1069,16 @@ export class RequestMessageComponentt implements AfterViewInit {
   onChangeStartDate(event: Date) {
     if (this.form?.value?.startDate && this.form?.value?.endDate) {
       const startDate = new Date(this.form.value.startDate);
-      const dataHoje = new Date();
+      const todayDate = new Date();
 
       startDate.setHours(0, 0, 0, 0);
-      dataHoje.setHours(0, 0, 0, 0);
-      if (startDate.getTime() < dataHoje.getTime()) {
-        this.isValidEditDataInicio = true;
+      todayDate.setHours(0, 0, 0, 0);
+      if (startDate.getTime() < todayDate.getTime()) {
+        this.isValidEditStartDate = true;
         return;
       }
     } else {
-      this.isValidEditDataInicio = false;
+      this.isValidEditStartDate = false;
     }
   }
   private configureEditor(editor: Editor): void {
@@ -1108,14 +1088,12 @@ export class RequestMessageComponentt implements AfterViewInit {
 
       clearInterval(checkQuill);
 
-
       quill.root.addEventListener(
         'paste',
         (e: { preventDefault: () => void }) => {
           e.preventDefault();
-        }
+        },
       );
-
 
       quill.root.addEventListener(
         'contextmenu',
@@ -1126,9 +1104,8 @@ export class RequestMessageComponentt implements AfterViewInit {
             summary: 'Warning',
             detail: 'Right-click menu is disabled in this field.',
           });
-        }
+        },
       );
-
 
       quill.on('text-change', (_delta: any, _oldDelta: any, source: string) => {
         if (source === 'user') {

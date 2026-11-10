@@ -145,7 +145,7 @@
     <form [formGroup]="formFixedMessage">
       <div class="grid grid-cols-12">
         <div class="col-span-12">
-          <label for="perfil">Description <span class="custom-redcolor">*</span></label>
+          <label for="profile">Description <span class="custom-redcolor">*</span></label>
           @if (messageModalCurrentMode !== 'view') {
           <p-editor #editorRef formControlName="description" [style]="{ height: '220px' }"
             (onTextChange)="limitCharacterCountEditor($event, editorRef, maxLengthFixed, 'charsUsedFixed')">
@@ -163,7 +163,7 @@
       </div>
       <div class="flex mt-6 gap-8">
         <div class="w-full">
-          <label for="perfil">Start Date <span class="custom-redcolor">*</span></label>
+          <label for="profile">Start Date <span class="custom-redcolor">*</span></label>
           <br />
           <p-calendar dateFormat="dd/mm/yy" formControlName="startDate" [showIcon]="true" [showOnFocus]="false"
             styleClass="custom-calendar-height w-full cursor-pointer" [appendTo]="'body'" [iconDisplay]="'input'"
@@ -175,7 +175,7 @@
           </p-calendar>
         </div>
         <div class="w-full">
-          <label for="perfil">End Date <span class="custom-redcolor">*</span></label>
+          <label for="profile">End Date <span class="custom-redcolor">*</span></label>
           <br />
           <p-calendar dateFormat="dd/mm/yy" formControlName="endDate" [showIcon]="true" [showOnFocus]="false"
             styleClass="custom-calendar-height w-full cursor-pointer" [appendTo]="'body'" [iconDisplay]="'input'"
@@ -359,7 +359,7 @@
     <form [formGroup]="formDynamicMessage">
       <div class="grid grid-cols-12">
         <div class="col-span-12">
-          <label for="perfil">Description <span class="custom-redcolor">*</span></label>
+          <label for="profile">Description <span class="custom-redcolor">*</span></label>
           @if (messageModalCurrentMode !== 'view') {
           <p-editor #editorRefDynamic formControlName="description" [style]="{ height: '220px' }"
             (onTextChange)="limitCharacterCountEditor($event, editorRefDynamic, maxLengthDynamic, 'charsUsedDynamic')">
@@ -378,7 +378,7 @@
 
       <div class="flex flex-col mt-6 gap-6 sm:flex-row ">
         <div class="w-full">
-          <label for="perfil">Start Date <span class="custom-redcolor">*</span></label>
+          <label for="profile">Start Date <span class="custom-redcolor">*</span></label>
           <br />
           <p-calendar dateFormat="dd/mm/yy" formControlName="startDate" [showIcon]="true" [showOnFocus]="false"
             styleClass="custom-calendar-height w-full cursor-pointer" [appendTo]="'body'" [iconDisplay]="'input'"
@@ -390,7 +390,7 @@
           </p-calendar>
         </div>
         <div class="w-full">
-          <label for="perfil">End Date <span class="custom-redcolor">*</span></label>
+          <label for="profile">End Date <span class="custom-redcolor">*</span></label>
           <br />
           <p-calendar dateFormat="dd/mm/yy" formControlName="endDate" [showIcon]="true" [showOnFocus]="false"
             styleClass="custom-calendar-height w-full cursor-pointer" [appendTo]="'body'" [iconDisplay]="'input'"
@@ -402,10 +402,10 @@
         </div>
 
         <div class="w-full">
-          <label for="perfil">Specific Month <span class="custom-redcolor">*</span></label>
+          <label for="profile">Specific Month <span class="custom-redcolor">*</span></label>
           <br />
           <p-dropdown [options]="months" formControlName="specificMonthId" optionLabel="name" placeholder="Select"
-            class="drop-month-especifico" appendTo="body" />
+            class="drop-month-specific" appendTo="body" />
         </div>
       </div>
     </form>

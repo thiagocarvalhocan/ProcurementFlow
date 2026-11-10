@@ -102,21 +102,21 @@
           pSortableColumn="requestedMonths" style="width: 40%">
           Months Requested <p-sortIcon field="requestedMonths" />
         </th>
-        <th pTooltip="Sort" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip"
-          pSortableColumn="dataUltimaAtualizacao" style="width: 15%">
-          Last Updated <p-sortIcon field="dataUltimaAtualizacao" />
+        <th pTooltip="Sort" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" pSortableColumn="dateLastUpdate"
+          style="width: 15%">
+          Last Updated <p-sortIcon field="dateLastUpdate" />
         </th>
         <th style="width: 8%" class="text-center">Actions</th>
       </tr>
     </ng-template>
 
-    
+
     <ng-template pTemplate="body" let-item>
       <tr>
         <td>{{ item.budgetTypeDescription }}</td>
         <td>{{ item.year }}</td>
         <td>{{ item.requestedMonths || '-' }}</td>
-        <td>{{ item.dataUltimaAtualizacao | date : "dd/MM/yyyy HH:mm" }}</td>
+        <td>{{ item.dateLastUpdate | date : "dd/MM/yyyy HH:mm" }}</td>
         <td class="flex justify-center flex-wrap">
           <p-button pTooltip="View" [text]="true" [rounded]="true" tooltipPosition="bottom"
             tooltipStyleClass="custom-tooltip" styleClass="custom-tablebutton" (onClick)="
@@ -178,7 +178,7 @@
     </div>
   </p-header>
   <hr />
-  <div class="flex align-items-center gap-3 px-[1.125rem] py-[0.75rem]">
+  <div class="flex items-center gap-3 px-[1.125rem] py-[0.75rem]">
     Will the Advance Request be “Monthly” or “Occasional”?
   </div>
   <hr />
@@ -187,7 +187,8 @@
       <p-button label="Monthly" severity="danger" [text]="true" (click)="isValidRegistrationRequestMonthly()"
         styleClass="custom-confirm-yes">
       </p-button>
-      <p-button label="Occasional" styleClass="custom-confirm-yes" (click)="isVisibleConfirmChoice = false" disabled="true">
+      <p-button label="Occasional" styleClass="custom-confirm-yes" (click)="isVisibleConfirmChoice = false"
+        disabled="true">
       </p-button>
     </div>
   </ng-template>
@@ -213,13 +214,13 @@
 
 
 <p-dialog [header]="
-    confirmLabel === 'Add' ? 'Cancel Creation' : 'Cancel Edit'
+    confirmLabel === 'Add' ? 'Cancel Creation' : 'Cancel Editing'
   " [modal]="true" [(visible)]="visibleCancelConfirm" [resizable]="false" [draggable]="false" closable="false"
   [style]="{ width: '28rem' }" class="p-dialog-alert">
   <hr />
-  <div class="flex align-items-center gap-3 px-[1.125rem] py-[0.75rem]">
+  <div class="flex items-center gap-3 px-[1.125rem] py-[0.75rem]">
     {{
-    confirmLabel === "Cadastrar"
+    confirmLabel === "Add"
     ? "Do you really want to cancel creation of the Request? All entered data will be lost."
     : "Do you really want to cancel changes to the Request? All changed data will be lost."
     }}
@@ -233,7 +234,7 @@
       <p-button [label]="
           confirmLabel === 'Add'
             ? 'Yes, cancel creation'
-            : 'Yes, cancel edit'
+            : 'Yes, cancel editing'
         " styleClass="custom-confirm-yes" (click)="
           closeCancel(confirmLabel === 'Add' ? 'Add' : 'Edit');
           visibleCancelConfirm = false
@@ -249,8 +250,8 @@
   closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
   <hr />
   <main>
-    @if (confirmLabel === 'Add') { Do you really save a Request? }
-    @else { Do you really save a edit da Request? }
+    @if (confirmLabel === 'Add') { Do you really want to save a Request? }
+    @else { Do you really want to edit the Request? }
   </main>
   <hr />
   <p-footer class="flex justify-end gap-4">
@@ -265,8 +266,8 @@
 </p-dialog>
 
 @if(dynamicMessage){
-<p-dialog header="Warning" [modal]="true" [visible]="true" [resizable]="false" [draggable]="false"
-  closable="false" [style]="{ width: '28rem' }" class="p-dialog-alert">
+<p-dialog header="Warning" [modal]="true" [visible]="true" [resizable]="false" [draggable]="false" closable="false"
+  [style]="{ width: '28rem' }" class="p-dialog-alert">
   <p-header>
     <div class="custom-dialog-header">
       <div class="text-xl">Warning</div>
@@ -279,7 +280,7 @@
   </p-header>
 
   <hr />
-  <div class="flex align-items-center gap-3 py-[0.75rem]">
+  <div class="flex items-center gap-3 py-[0.75rem]">
     <ul [innerHTML]="dynamicMessageFormatted" class="conteudo-html pl-2 px-4"></ul>
   </div>
   <hr />

@@ -1,4 +1,4 @@
-export interface Counter {
+export interface Accountant {
   id?: number;
   label?: string;
 }

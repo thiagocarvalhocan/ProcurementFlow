@@ -1,0 +1,182 @@
+<p-toast />
+<p-card>
+  <div>
+    <div>
+      <form id="formSaveUnit" [formGroup]="form" class="flex flex-col gap-6">
+        <div class="flex flex-col justify-between gap-1">
+          <div class="flex flex-col items-center justify-between gap-2 min-[646px]:flex-row">
+            <div class="font-card-title-bold text-black">Identification</div>
+            <p-button *ngIf="mode != 'view'" styleClass="custom-saveButton float-end" (onClick)="openConfirmSaveUnit()">
+              <app-icon-save color="white" />
+              Save
+            </p-button>
+          </div>
+        </div>
+        <div class="flex flex-col justify-between gap-1">
+          <div class="flex flex-col justify-between gap-2 md:flex-row">
+            <div class="w-[50%]">
+              <div class="custom-tablesubtitle gap-1">
+                Unit SOF <span class="custom-redcolor">*</span>
+              </div>
+              <input id="unit" formControlName="sofUnitDescription" type="text" pInputText placeholder="Enter value"
+                maxlength="150" [style]="{ width: '100%' }" />
+              <small *ngIf="
+                  form.get('sofUnitDescription')?.touched &&
+                  form.get('sofUnitDescription')?.invalid
+                " class="p-error">Required field</small>
+            </div>
+            <div class="w-[50%]">
+              <div class="custom-tablesubtitle gap-1">
+                RAJ <span class="custom-redcolor">*</span>
+              </div>
+              <p-dropdown id="raj" class="w-full" [options]="rajs" optionValue="id" optionLabel="description"
+                formControlName="rajId" placeholder="Select" virtualScroll="true" virtualScrollItemSize="40"
+                autoWidth="false" [style]="{ width: '100%' }">
+              </p-dropdown>
+              <small *ngIf="form.get('rajId')?.touched && form.get('rajId')?.invalid" class="p-error">
+                Required field</small>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</p-card>
+
+<br />
+
+<p-card>
+  <div class="flex flex-col justify-between gap-6 mb-6">
+    <div class="flex flex-col items-center justify-between gap-2 min-[646px]:flex-row">
+      <div class="font-card-title-bold text-black">Cost Centers</div>
+    </div>
+    <div class="flex flex-col justify-between items-end gap-4 md:flex-row" *ngIf="mode != 'view'">
+      <div class="w-[100%]" [formGroup]="formUnlink">
+        <div class="custom-tablesubtitle gap-1">Code/ Description</div>
+        <p-dropdown id="rajCostCenter" class="w-full" [options]="costCenters" optionValue="id" optionLabel="description"
+          formControlName="costCenter" placeholder="Select" virtualScroll="true" virtualScrollItemSize="40"
+          autoWidth="false" [style]="{ width: '100%' }">
+        </p-dropdown>
+      </div>
+      <p-button styleClass="custom-saveButton float-end" (onClick)="openConfirmLink()" [disabled]="
+          !form.get('id')?.value || !formUnlink.get('costCenter')?.value
+        ">
+        <app-icon-link />
+        Link
+      </p-button>
+    </div>
+  </div>
+
+  <p-table #tb id="TableCostCentersLinked" *ngIf="userPermissionService.hasPermission('Units', 'View')"
+    responsiveLayout="stack" [breakpoint]="'960px'" [tableStyle]="{ 'min-width': '50rem' }" [lazy]="true"
+    (onLazyLoad)="search($event)" [value]="costCentersPaginated" [paginator]="false" [rows]="rows" [first]="first"
+    [totalRecords]="totalItems" [rowsPerPageOptions]="[10, 20, 30, 40, 50]" [customSort]="true">
+    <ng-template pTemplate="header">
+      <tr>
+        @for (item of headersTableCostCenters; track item.title) { @if
+        (item.key) {
+        <th pTooltip="Sort" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [pSortableColumn]="item.key"
+          class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}<p-sortIcon [field]="item.key" />
+          </div>
+        </th>
+        } @else {
+        <th class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}
+          </div>
+        </th>
+        } }
+        @if(mode != 'view'){<th class="text-center min-w-[60px] p-2">Actions</th>}
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-costCenter>
+      <tr>
+        <td>{{ costCenter.id }}</td>
+        <td>{{ costCenter.description }}</td>
+        @if(mode != 'view'){<td class="flex items-center justify-center">
+          <p-button pTooltip="Unlink" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" text="true"
+            styleClass="custom-tablebutton" (click)="openConfirmUnlink(costCenter.id)" [disabled]="
+              !userPermissionService.hasPermission(
+                'Units',
+                'Edit'
+              )
+            ">
+            <app-icon-unlink color="#0F4C5C" width="35" height="34" />
+          </p-button>
+        </td>}
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="footer" let-users> </ng-template>
+    <ng-template pTemplate="paginatorleft">
+      <span>{{ totalItems }} itens</span>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7">No records found</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<app-paginator [first]="first" [last]="last" [totalItems]="totalItems" [rows]="rows" [options]="options"
+  (rowsChange)="onRowsChange($event)" (pageChange)="search($event)"></app-paginator>
+
+<p-dialog header="" modal="true" [(visible)]="isVisibleConfirmSave" baseZIndex="1" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <p-header> Save Unit </p-header>
+  <hr />
+  <main>Do you really want to save the Unit?</main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="Not now" severity="danger" text="true" (click)="isVisibleConfirmSave = false"
+      styleClass="custom-confirm-no"></p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="saveOrEditUnit()">
+      Yes, Save
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="" modal="true" [(visible)]="isVisibleConfirmLinkUnlink" baseZIndex="1" resizable="false"
+  draggable="false" closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <p-header>
+    {{
+    modalConfirmMode === "link"
+    ? " Link Cost Center"
+    : " Unlink Cost Center"
+    }}
+  </p-header>
+  <hr />
+  <main>
+    @if (modalConfirmMode === 'link') { Do you really want to link the Cost Center? }
+    @else { Do you really want to unlink this Cost Center from the Unit?
+
+    <div class="col-span-12 mt-6" [formGroup]="formUnlink">
+      <label for="unlinkReason" class="custom-tablesubtitle">Reason<span class="custom-redcolor"> *</span></label>
+      <textarea rows="2" pTextarea class="p-inputtext w-full" formControlName="unlinkReason" id="unlinkReason"
+        placeholder="Enter the reason" maxlength="1000"></textarea>
+      <small *ngIf="
+          formUnlink.get('unlinkReason')?.invalid &&
+          formUnlink.get('unlinkReason')?.touched
+        " class="p-error"> Required field
+      </small>
+    </div>
+    }
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button severity="danger" text="true" (click)="closeConfirmLinkUnlink()" styleClass="custom-confirm-no">
+      {{
+      modalConfirmMode === "link" ? "Not now" : "No, keep link"
+      }}
+    </p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="
+        modalConfirmMode === 'link'
+          ? linkCostCenter()
+          : unlinkCostCenter()
+      ">
+      @if (modalConfirmMode === 'link') { Yes, link } @else { Yes, unlink }
+    </p-button>
+  </p-footer>
+</p-dialog>

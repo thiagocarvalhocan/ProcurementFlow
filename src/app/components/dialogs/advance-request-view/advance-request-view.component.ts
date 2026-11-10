@@ -5,6 +5,8 @@ import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
+import { MainProcess } from '../../../models/response/MainProcess';
+import { Month } from '../../../models/Month';
 
 @Component({
   selector: 'app-advance-request-view',
@@ -22,8 +24,8 @@ import { FormsModule } from '@angular/forms';
 })
 export class AdvanceRequestViewComponent {
   @Input() isVisible: boolean = false;
-  @Input() advanceRequestDetail: any;
-  @Input() months: any[] = [];
+  @Input() advanceRequestDetail: MainProcess | undefined;
+  @Input() months: Month[] = [];
   @Input() currentYear?: number;
   @Input() isRequest: boolean = false;
   @Input() unitDescriptionCurrent: string = '';

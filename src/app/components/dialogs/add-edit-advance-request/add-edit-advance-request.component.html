@@ -1,6 +1,5 @@
 <p-dialog [header]="header" [(visible)]="isVisible" [resizable]="false" [draggable]="false"
-  styleClass="custom-Modal w-[95%] sm:w-[80%] md:w-[70%]" [modal]="true" closeOnEscape="false"
-  closable="false">
+  styleClass="custom-Modal w-[95%] sm:w-[80%] md:w-[70%]" [modal]="true" closeOnEscape="false" closable="false">
   <p-header>
     <div class="custom-dialog-header">
       <div class="text-xl">
@@ -31,7 +30,7 @@
         </div>
         <div>
           <div class="custom-tablesubtitle gap-1">
-            Budget Monthly
+            Monthly Budget
           </div>
           <input type="text" pInputText [ngModel]="
               newRequest.budgetValue | currency : 'BRL' : 'symbol' : '1.2-2'
@@ -62,7 +61,7 @@
         </div>
         <div>
           <div class="custom-tablesubtitle gap-1">
-            Budget Monthly
+            Monthly Budget
           </div>
           <input type="text" pInputText [ngModel]="
               advanceRequestDetail.budgetValue | currency : 'BRL' : 'symbol' : '1.2-2'

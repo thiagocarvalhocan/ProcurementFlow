@@ -1,4 +1,4 @@
 export interface AlertType {
-  alertTypeName: string;
+  alertTypeDescription: string;
   alerts: string[];
 }

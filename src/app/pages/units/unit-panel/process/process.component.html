@@ -1,0 +1,615 @@
+<p-toast></p-toast>
+
+<div class="ms-4 mb-4 header">
+  <strong class="text-[1.5rem]">Main Processes</strong>
+</div>
+
+@if(mode != 'view'){<p-card>
+  <div class="grid grid-cols-12">
+    <div class="col-span-3"></div>
+    <div class="col-span-9">
+      <p-button label="Add" styleClass="custom-saveButton ms-4 float-end" (click)="openModalProcessMain('add', null)"
+        [disabled]="
+          !userPermissionService.hasPermission('ProcessesUnit', 'Create')
+        ">
+        <app-icon-add-square color="white" size="24px" />
+      </p-button>
+    </div>
+  </div>
+</p-card>
+}
+<br />
+
+<p-card>
+  <p-table #tb id="TableProcessesMain" *ngIf="userPermissionService.hasPermission('ProcessesUnit', 'View')"
+    [lazy]="true" (onLazyLoad)="getMainProcesses($event)" [value]="mainProcesses" [paginator]="false">
+    <ng-template pTemplate="header">
+      <tr>
+        @for (item of headersTableProcessMain; track item.title) { @if
+        (item.key) {
+        <th pTooltip="Sort" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [pSortableColumn]="item.key"
+          class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}<p-sortIcon [field]="item.key" />
+          </div>
+        </th>
+        } @else {
+        <th class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}
+          </div>
+        </th>
+        } }
+        <th class="text-center min-w-[60px] p-2">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>
+          <span class="p-column-title"></span>
+          {{ item.processNumber | processNumber }}
+        </td>
+        <td>
+          <span class="p-column-title"></span>
+          {{ item.startDate | date : "dd/MM/yyyy" }} a
+          {{ item.endDate | date : "dd/MM/yyyy" }}
+        </td>
+        <td>
+          <span class="p-column-title"></span>
+          {{ item.valueBudget | currency : "BRL" }}
+        </td>
+        <td>
+          <span class="p-column-title"></span>
+          {{ item.defalcation ? "Yes" : "No" }}
+        </td>
+        <td>
+          <span class="p-column-title"></span>
+          {{ item.changeOwnership ? "Yes" : "No" }}
+        </td>
+        <td>
+          <span class="p-column-title"></span>
+          {{ item.twoOpened ? "Yes" : "No" }}
+        </td>
+        <td>
+          <span class="p-column-title"></span>
+          {{ item.descriptionStatusProcess }}
+        </td>
+        <td class="flex items-center justify-center">
+          <p-button pTooltip="View" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [text]="true"
+            [rounded]="true" styleClass="custom-tablebutton" (click)="openModalViewRequestProcessMain(item)" [disabled]="
+              !userPermissionService.hasPermission(
+                'ProcessesUnit',
+                'View'
+              )
+            ">
+            <app-icon-view width="35" height="34" />
+          </p-button>
+          @if(mode != 'view'){
+          <p-button pTooltip="Edit" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" text="true"
+            styleClass="custom-tablebutton" (click)="openModalProcessMain('edit', item)" [disabled]="
+              !userPermissionService.hasPermission('ProcessesUnit', 'Edit')
+            ">
+            <app-icon-edit2 />
+          </p-button>
+          }
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="footer"> </ng-template>
+    <ng-template pTemplate="paginatorleft">
+      <span>{{ totalItensProcessMain }} itens</span>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7">No records found</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<app-paginator [first]="firstTableProcessMain" [last]="lastTableProcessMain" [totalItems]="totalItemsProcessMain"
+  [rows]="rowsTableProcessMain" [options]="optionsProcessMain" (rowsChange)="onRowsChangeMainProcesses($event)"
+  (pageChange)="getMainProcesses($event)"></app-paginator>
+
+<br />
+
+<div class="ms-4 mb-4 header">
+  <strong class="text-[1.5rem]">Requests</strong>
+</div>
+
+<p-card>
+  <div class="">
+    <div class="">
+      <form *ngIf="
+          userPermissionService.hasPermission(
+            'ProcessesUnit',
+            'View'
+          )
+        " [formGroup]="formSearch" (submit)="getSubmittedRequests(null)">
+        <div class="flex justify-between gap-1">
+          <div class="flex flex-col gap-2 md:flex-row lg:gap-4">
+            <div>
+              <div class="custom-tablesubtitle gap-1">Process</div>
+              <p-dropdown formControlName="process" [style]="{ width: '100%' }" [options]="processLinked"
+                optionValue="processNumber" optionLabel="processNumber" placeholder="Select"
+                (onChange)="linkedProcessChange($event)">
+                <ng-template let-process pTemplate="selectedItem">
+                  <div>{{ process.processNumber | processNumber }}</div>
+                </ng-template>
+                <ng-template let-process pTemplate="item">
+                  <div>{{ process.processNumber | processNumber }}</div>
+                </ng-template></p-dropdown>
+            </div>
+            <div>
+              <div class="custom-tablesubtitle gap-1">
+                Advances By Year
+              </div>
+              <p-dropdown formControlName="advancesByYear" [style]="{ width: '100%' }" [options]="advancesByYear"
+                placeholder="Select" />
+            </div>
+            <div>
+              <div class="custom-tablesubtitle gap-1">Budget Type</div>
+              <p-dropdown formControlName="idTypeBudget" [style]="{ width: '100%' }" [options]="budgetTypeOptions"
+                optionValue="id" optionLabel="description" placeholder="Select" />
+            </div>
+          </div>
+          <div class="flex flex-col gap-2 lg:flex-row lg:gap-4 items-end">
+            <p-button [text]="true" severity="danger" styleClass="custom-cleanButton" (click)="searchClean()">
+              <app-icon-clean />
+              Clear
+            </p-button>
+            <p-button [text]="true" severity="danger" [outlined]="true" styleClass="custom-searchButton"
+              (click)="getSubmittedRequests(null)">
+              <app-icon-search-normal />
+              Search
+            </p-button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</p-card>
+
+<br />
+
+<p-card>
+  <p-table #tbRequest id="SubmittedAdvanceRequestTable" *ngIf="
+      userPermissionService.hasPermission('ProcessesUnit', 'View')
+    " [lazy]="true" (onLazyLoad)="getSubmittedRequests($event)" [value]="submittedRequests" [paginator]="false">
+    <ng-template pTemplate="header">
+      <tr>
+        @for (item of headersTableRequests; track item.title) { @if
+        (item.key) {
+        <th pTooltip="Sort" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [pSortableColumn]="item.key"
+          class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}<p-sortIcon [field]="item.key" />
+          </div>
+        </th>
+        } @else {
+        <th class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}
+          </div>
+        </th>
+        } }
+        <th class="text-center min-w-[60px] p-2">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>
+          <span class="p-column-title"></span>
+          {{ item.idLinkedProcess ?? "-" }}
+        </td>
+        <td>
+          <span class="p-column-title"></span>
+          {{ item.nameAccountant ?? "-" }}
+        </td>
+        <td>
+          <span class="p-column-title"></span>
+          {{ item.descriptionMonth }}
+        </td>
+        <td>
+          <span class="p-column-title"></span>
+          {{ item.descriptionTypeBudget }}
+        </td>
+        <td>
+          <span class="p-column-title"></span>
+          {{ item.valueBudget | currency : "BRL" }}
+        </td>
+        <td>
+          <span class="p-column-title"></span>
+          {{ item.descriptionStatusAdvanceRequestMonth }}
+        </td>
+        <td class="flex items-center justify-center">
+          <p-button pTooltip="View" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [text]="true"
+            [rounded]="true" styleClass="custom-tablebutton" (click)="openMonthAdvanceRequestModal('view', item)"
+            [disabled]="
+              !userPermissionService.hasPermission('ProcessesUnit',
+                'View'
+              )
+            ">
+            <app-icon-view width="35" height="34" />
+          </p-button>
+          @if(mode != 'view'){
+          <p-button pTooltip="Edit" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" text="true"
+            styleClass="custom-tablebutton" (click)="openMonthAdvanceRequestModal('edit', item)" [disabled]="
+              !userPermissionService.hasPermission(
+                'ProcessesUnit',
+                'Edit'
+              ) && !(item?.userAccountantId == currentUser.id)
+            ">
+            <app-icon-edit2 />
+          </p-button>
+          }
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7">No records found</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<app-paginator [first]="firstTableRequests" [last]="lastTableRequests" [totalItems]="totalItemsTableRequests"
+  [rows]="rowsTableRequests" [options]="options" (rowsChange)="onRowsChangeRequests($event)"
+  (pageChange)="getSubmittedRequests($event)"></app-paginator>
+
+<p-dialog header="" modal="true" [(visible)]="isVisibleModalProcessMain" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" class="p-dialog-v2" [style]="
+    modalCurrentMode !== 'view'
+      ? { width: '70%' }
+      : { width: '80%' }
+  ">
+  <p-header>
+    <div class="">{{ getTitleModalProcessMain() }}</div>
+    <div class="container-button-close">
+      <button type="button" pButton (click)="
+          modalCurrentMode !== 'view'
+            ? openCancelConfirmModal()
+            : closeModalProcessMain()
+        ">
+        <app-icon-close-square />
+      </button>
+    </div>
+  </p-header>
+  <hr />
+  <main>
+    <form [formGroup]="formMainProcess">
+      <div class="grid grid-cols-12 gap-4 p-0">
+        <div class="col-span-12">
+          <label for="processNumber">Process<span class="custom-redcolor"> *</span></label>
+          <input class="p-inputtext w-full h-[42px]" formControlName="processNumber" id="processNumber" pInputText
+            maxlength="13" />
+          <small *ngIf="
+              formMainProcess.get('processNumber')?.invalid &&
+              formMainProcess.get('processNumber')?.touched
+            " class="p-error">Required field</small>
+        </div>
+      </div>
+      <div class="col-span-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+        <div class="">
+          <label for="profile">Start Date<span class="custom-redcolor"> *</span></label>
+          <br />
+          <p-calendar styleClass="custom-calendar-height w-full" dateFormat="dd/mm/yy" formControlName="startDate"
+            [showIcon]="true" [showOnFocus]="false" [appendTo]="'body'" [iconDisplay]="'input'" placeholder="Select"
+            (input)="onDateInputMask($event)">
+            <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
+              <app-icon-calendar (click)="clickCallBack($event)"></app-icon-calendar>
+            </ng-template>
+          </p-calendar>
+          <small *ngIf="
+              formMainProcess.get('startDate')?.invalid &&
+              formMainProcess.get('startDate')?.touched
+            " class="p-error">Required field</small>
+        </div>
+        <div class="">
+          <label for="profile">End Date<span class="custom-redcolor"> *</span></label>
+          <br />
+          <p-calendar styleClass="custom-calendar-height w-full" dateFormat="dd/mm/yy" formControlName="endDate"
+            [showIcon]="true" [showOnFocus]="false" [appendTo]="'body'" [iconDisplay]="'input'" placeholder="Select"
+            (input)="onDateInputMask($event)">
+            <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
+              <app-icon-calendar (click)="clickCallBack($event)"></app-icon-calendar>
+            </ng-template>
+          </p-calendar>
+          <small *ngIf="
+              formMainProcess.get('endDate')?.invalid &&
+              formMainProcess.get('endDate')?.touched
+            " class="p-error">Required field</small>
+        </div>
+        <div class="">
+          <label for="profile">Monthly Budget<span class="custom-redcolor"> *</span></label>
+          <br />
+          <input class="p-inputtext w-full" formControlName="valueBudget" id="valueBudget" pInputText autoWidth="false"
+            maxlength="12" currencyMask
+            [options]="{ prefix: '$ ', thousands: '.', decimal: ',', allowNegative: false }" />
+          <small *ngIf="
+              formMainProcess.get('valueBudget')?.invalid &&
+              formMainProcess.get('valueBudget')?.touched
+            " class="p-error">Required field</small>
+        </div>
+      </div>
+      <div [ngClass]="{ 'custom-margin-botton': !isReasonVisible }"
+        class="col-span-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+        <div class="w-full">
+          <label for="profile">Defalcation<span class="custom-redcolor"> *</span></label>
+          <br />
+          <p-dropdown [options]="['Yes', 'No']" formControlName="defalcation" virtualScroll="true"
+            virtualScrollItemSize="40" autoWidth="false" [style]="{ width: '100%' }"
+            (onChange)="onReasonChange($event)">
+          </p-dropdown>
+          <small *ngIf="
+              formMainProcess.get('defalcation')?.invalid &&
+              formMainProcess.get('defalcation')?.touched
+            " class="p-error">Required field</small>
+        </div>
+        <div class="">
+          <label for="profile">Change de Ownership<span class="custom-redcolor"> *</span></label>
+          <br />
+          <p-dropdown [options]="['Yes', 'No']" class="w-full" formControlName="changeOwnership" virtualScroll="true"
+            virtualScrollItemSize="40" autoWidth="false" [style]="{ width: '100%' }">
+          </p-dropdown>
+          <small *ngIf="
+              formMainProcess.get('changeOwnership')?.invalid &&
+              formMainProcess.get('changeOwnership')?.touched
+            " class="p-error">Required field</small>
+        </div>
+        <div class="">
+          <label for="profile">Two Opened<span class="custom-redcolor"> *</span></label>
+          <br />
+          <p-dropdown [options]="['Yes', 'No']" class="w-full" formControlName="twoOpened" virtualScroll="true"
+            virtualScrollItemSize="40" autoWidth="false" [style]="{ width: '100%' }">
+          </p-dropdown>
+          <small *ngIf="
+              formMainProcess.get('twoOpened')?.invalid &&
+              formMainProcess.get('twoOpened')?.touched
+            " class="p-error">Required field</small>
+        </div>
+      </div>
+      <div *ngIf="isReasonVisible" class="col-span-12 mt-6">
+        <label for="reasonDefalcation">Reason <span class="custom-redcolor">*</span></label>
+        <textarea rows="2" pTextarea class="p-inputtext w-full" formControlName="reasonDefalcation"
+          id="reasonDefalcation" maxlength="1000"></textarea>
+        <small *ngIf="
+            formMainProcess.get('reasonDefalcation')?.invalid &&
+            formMainProcess.get('reasonDefalcation')?.touched
+          " class="p-error">Required field</small>
+      </div>
+    </form>
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button [label]="modalCurrentMode !== 'view' ? 'Cancel' : 'Close'" severity="danger" text="true"
+      styleClass="custom-closesquare" (click)="
+        modalCurrentMode !== 'view'
+          ? openCancelConfirmModal()
+          : closeModalProcessMain()
+      ">
+      <app-icon-close-square size="24" color="#0F4C5C" />
+    </p-button>
+    <p-button styleClass="custom-saveButton" (click)="openConfirmSaveModalProcessMain()"
+      *ngIf="modalCurrentMode !== 'view'">
+      <app-icon-save size="24" color="#ffffff" /> Save
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog modal="true" [(visible)]="isVisibleCancelConfirm" resizable="false" draggable="false" closable="false"
+  closeOnEscape="false" [style]="{ 'max-width': '460px', 'min-width': '420px' }" class="p-dialog-v2">
+  <p-header>
+    @if(monthAdvanceRequestModalVisibility === true){
+    <div class="">
+      {{
+      monthAdvanceRequestModalCurrentMode === "add"
+      ? "Cancel Criation"
+      : "Cancel Editing"
+      }}
+    </div>
+    } @if(isVisibleModalProcessMain === true){
+    <div class="">
+      {{ modalCurrentMode === "add" ? "Cancel Criation" : "Cancel Editing" }}
+    </div>
+    }
+  </p-header>
+  <hr />
+  <main>
+    <p>Do you really want to cancel creation of the Request?</p>
+    <p>All entered data will be lost.</p>
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="No, keep data" severity="danger" text="true" (click)="closeCancelConfirmModal()"
+      styleClass="custom-confirm-no">
+    </p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="
+        closeCancelConfirmModal();
+        closeMonthAdvanceRequestModal();
+        closeModalProcessMain()
+      ">
+      Yes, cancel
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="" modal="true" [(visible)]="monthAdvanceRequestModalVisibility" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" [style]=" {'max-width': '95%', 'min-height': '550px'}"
+  styleClass="p-dialog-v2 w-[95%] md:w-[70%] md:min-w-[42.188rem]">
+  <p-header>
+    <div class="text-xl text-wrap">{{ getTitleMonthRequestAdvanceModal() }}</div>
+    <div class="container-button-close">
+      <button type="button" pButton (click)="
+          monthAdvanceRequestModalCurrentMode !== 'view'
+            ? openCancelConfirmMonthAdvanceRequestModal()
+            : closeMonthAdvanceRequestModal()
+        ">
+        <app-icon-close-square />
+      </button>
+    </div>
+  </p-header>
+  <hr />
+  <main>
+    <form [formGroup]="formMonthRequestAdvance">
+      <div class="grid grid-cols-12 mt-6 gap-6">
+        <div class="col-span-6">
+          <label for="profile">Linked Process<span class="custom-redcolor"> *</span></label>
+          <br />
+          <input style="width: 100%" type="text" pInputText formControlName="idLinkedProcess" [(ngModel)]="
+              formMonthRequestAdvance.controls['idLinkedProcess']
+                .value
+            " (ngModelChange)="onLinkedProcessChange($event)" />
+          <small *ngIf="
+              formMonthRequestAdvance.get('idLinkedProcess')
+                ?.invalid &&
+              formMonthRequestAdvance.get('idLinkedProcess')?.touched
+            " class="p-error">Required field</small>
+        </div>
+        <div class="col-span-6">
+          <label for="profile">Month <span class="custom-redcolor">*</span></label>
+          <br />
+          <input style="width: 100%" type="text" pInputText formControlName="descriptionMonth" />
+        </div>
+      </div>
+      <div class="grid grid-cols-12 mt-6 gap-6">
+        <div class="col-span-6">
+          <label for="profile">Main Process <span class="custom-redcolor">*</span></label>
+          <br />
+          <input style="width: 100%" type="text" pInputText formControlName="processNumber"
+            [(ngModel)]="formMainProcess.controls['processNumber'].value" (ngModelChange)="onProcessChange($event)" />
+        </div>
+        <div class="col-span-6">
+          <label for="profile">Type de Budget <span class="custom-redcolor">*</span></label>
+          <br />
+          <input style="width: 100%" type="text" pInputText formControlName="descriptionTypeBudget" />
+        </div>
+      </div>
+      <div class="grid grid-cols-12 mt-6 gap-6">
+        <div class="col-span-6">
+          <label for="profile">Accountant <span class="custom-redcolor">*</span></label>
+          <br />
+          <p-autoComplete #autoCompAccountant placeholder="Enter value" (onClear)="clearAutoCompleteSearch($event)"
+            [suggestions]="suggestionsAccountantsAutoComplete" (completeMethod)="searchAccountantAutoComplete($event)"
+            (onSelect)="selectAccountantAutoComplete($event)" (onFocus)="searchAccountantInitial()" field="label"
+            [style]="{ width: '100%' }" [inputStyle]="{ width: '100%' }" [emptyMessage]="'Nenhum result encontrado'"
+            [minLength]="0" maxlength="150" formControlName="userAccountantId" appendTo="body" />
+          <small *ngIf="
+              formMonthRequestAdvance.get('userAccountantId')?.invalid &&
+              formMonthRequestAdvance.get('userAccountantId')?.touched
+            " class="p-error">Required field</small>
+        </div>
+        <div class="col-span-6">
+          <label for="profile">Budget <span class="custom-redcolor">*</span></label>
+          <br />
+          <input style="width: 100%" type="text" pInputText maxlength="12" formControlName="valueBudget" currencyMask
+            [options]="{ prefix: '$ ', thousands: '.', decimal: ',', allowNegative: false }" />
+          <small *ngIf="
+              formMonthRequestAdvance.get('valueBudget')?.invalid &&
+              formMonthRequestAdvance.get('valueBudget')?.touched
+            " class="p-error">Required field</small>
+        </div>
+      </div>
+      <div class="grid grid-cols-12 mt-6 gap-6">
+        <div class="col-span-6">
+          <label for="profile">Status <span class="custom-redcolor">*</span></label>
+          <br />
+          <p-dropdown [style]="{ width: '100%' }" [options]="optionsStatus" optionValue="id" optionLabel="description"
+            formControlName="statusRequestAdvanceMonthId" appendTo="body" placeholder="Select"
+            (onChange)="onReasonStatusChange($event)" />
+          <small *ngIf="
+              formMonthRequestAdvance.get(
+                'statusRequestAdvanceMonthId'
+              )?.invalid &&
+              formMonthRequestAdvance.get(
+                'statusRequestAdvanceMonthId'
+              )?.touched
+            " class="p-error">Required field</small>
+        </div>
+      </div>
+      <div *ngIf="isReasonStatusVisible" class="grid grid-cols-12 mt-6 gap-6">
+        <div class="col-span-12">
+          <label for="descriptionReasonChangeStatus">Reason <span class="custom-redcolor">*</span></label>
+          <textarea rows="2" pTextarea class="p-inputtext w-full" formControlName="descriptionReasonChangeStatus"
+            id="descriptionReasonChangeStatus" maxlength="1000"></textarea>
+          <small *ngIf="
+              formMonthRequestAdvance.get(
+                'descriptionReasonChangeStatus'
+              )?.invalid &&
+              formMonthRequestAdvance.get(
+                'descriptionReasonChangeStatus'
+              )?.touched
+            " class="p-error">Required field</small>
+        </div>
+      </div>
+    </form>
+  </main>
+  <p-footer class="flex justify-end gap-4">
+    <p-button [label]="
+        monthAdvanceRequestModalCurrentMode !== 'view'
+          ? 'Cancel'
+          : 'Close'
+      " severity="danger" text="true" styleClass="custom-closesquare" (click)="
+        monthAdvanceRequestModalCurrentMode !== 'view'
+          ? openCancelConfirmMonthAdvanceRequestModal()
+          : closeMonthAdvanceRequestModal()
+      ">
+      <app-icon-close-square size="24" color="#0F4C5C" />
+    </p-button>
+    <p-button styleClass="custom-saveButton" (click)="openConfirmAdvanceRequestModal()"
+      *ngIf="monthAdvanceRequestModalCurrentMode !== 'view'">
+      <app-icon-save size="24" color="#ffffff" /> Save
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="" modal="true" [(visible)]="isVisibleConfirmSaveModal" baseZIndex="1" resizable="false"
+  draggable="false" closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <p-header>
+    <div class="">
+      {{
+      modalCurrentMode === "add"
+      ? "Add Main Process"
+      : "Edit Main Process"
+      }}
+    </div>
+  </p-header>
+  <hr />
+  <main>
+    @if (modalCurrentMode === 'add') { Do you really want to add a new Main Process? } @else { Do you really want to
+    edit the Main Process? }
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="Not now" severity="danger" text="true" (click)="closeConfirmSaveModalProcessMain()"
+      styleClass="custom-confirm-no"></p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="saveOrEditProcessMain()">
+      @if (modalCurrentMode === 'add') { Yes, create } @else { Yes, edit }
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="" modal="true" [(visible)]="isVisibleConfirmSaveAdvanceRequest" baseZIndex="1" resizable="false"
+  draggable="false" closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <p-header>
+    <div class="">Edit Request and Linked Process</div>
+  </p-header>
+  <hr />
+  <main>
+    Do you really want to edit the Request and Linked Process
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="Not now" severity="danger" text="true" (click)="closeConfirmAdvanceRequestModal()"
+      styleClass="custom-confirm-no"></p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="editAdvanceRequest()">
+      Yes, edit
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+<app-advance-request-view [(isVisible)]="isVisibleModalViewRequestProcessMain"
+  [unitDescriptionCurrent]="currentUnit.descriptionUnitSof" [advanceRequestDetail]="processSelectedView"
+  [months]="months" [currentYear]="currentYear"
+  (closed)="closeModalViewRequestProcessMain()"></app-advance-request-view>
