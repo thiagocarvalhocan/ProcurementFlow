@@ -119,7 +119,7 @@ export class UnitComponent {
 
     this.form = this.formBuilder.group({
       id: [null],
-      descriptionUnitSof: [null, Validators.required],
+      sofUnitDescription: [null, Validators.required],
       rajId: [null, Validators.required],
       centersCost: [null],
       descriptionRaj: [null],
@@ -312,7 +312,7 @@ export class UnitComponent {
           });
           this.form.patchValue(response);
           setTimeout(() => {
-            this.router.navigate([`parameterization/units`]);
+            this.router.navigate([`administration/units`]);
           }, 1500);
         },
         error: (error) => {

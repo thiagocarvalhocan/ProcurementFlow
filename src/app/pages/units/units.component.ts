@@ -103,7 +103,7 @@ export class UnitsComponent {
     private messageService: MessageService,
   ) {
     this.formSearch = this.formBuilder.group({
-      descriptionUnitSof: null,
+      sofUnitDescription: null,
       processNumber: '',
     });
   }
@@ -212,24 +212,24 @@ export class UnitsComponent {
   }
 
   addUnit() {
-    this.router.navigate(['/parameterization/units/new']);
+    this.router.navigate(['/administration/units/new']);
   }
 
   openViewEditUnit(currentMode: string, unit: any) {
     switch (currentMode) {
       case 'view':
-        this.router.navigate(['/parameterization/units', unit.id, 'view']);
+        this.router.navigate(['/administration/units', unit.id, 'view']);
         break;
       case 'edit':
-        this.router.navigate(['/parameterization/units', unit.id, 'edit']);
+        this.router.navigate(['/administration/units', unit.id, 'edit']);
         break;
       case 'editProcess':
-        this.router.navigate(['/parameterization/units', unit.id, 'edit'], {
+        this.router.navigate(['/administration/units', unit.id, 'edit'], {
           queryParams: { activeIndex: 3 },
         });
         break;
       case 'editMaterialsServicesUnit':
-        this.router.navigate(['/parameterization/units', unit.id, 'edit'], {
+        this.router.navigate(['/administration/units', unit.id, 'edit'], {
           queryParams: { activeIndex: 2 },
         });
         break;
