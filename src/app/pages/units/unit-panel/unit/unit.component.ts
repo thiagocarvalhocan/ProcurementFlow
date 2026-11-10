@@ -262,6 +262,17 @@ export class UnitComponent {
   }
 
   openConfirmSaveUnit() {
+    this.form.markAllAsTouched();
+    
+    if (!this.form.valid) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Please fill in the required field(s).',
+      });
+      return;
+    }
+
     this.isVisibleConfirmSave = true;
   }
 
@@ -273,15 +284,6 @@ export class UnitComponent {
 
   saveOrEditUnit() {
     this.isVisibleConfirmSave = false;
-    this.form.markAllAsTouched();
-    if (!this.form.valid) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Please fill in the required field(s).',
-      });
-      return;
-    }
 
     if (this.form.get('id')?.value) {
       this.unitService.update(this.form.value).subscribe({
