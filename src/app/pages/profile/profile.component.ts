@@ -141,7 +141,9 @@ export class ProfileComponent {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.getProfileFeatureActions();
+  }
 
   onRowsChange(newRows: number): void {
     this.rows = newRows;
@@ -156,7 +158,7 @@ export class ProfileComponent {
     const payload: ProfilePayload = {
       skip: 0,
       take: this.rows,
-      searchString: this.formSearch.value.searchTerm!,
+      searchString: this.formSearch.value.searchTerm || '',
     };
 
     if (event?.page || event?.page == 0) {

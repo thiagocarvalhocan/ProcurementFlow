@@ -1,0 +1,296 @@
+﻿<p-toast></p-toast>
+
+<p-card>
+  <div class="">
+    <div class="">
+      <form *ngIf="
+          userPermissionService.hasPermission(
+            'AdvanceRequest',
+            'View'
+          )
+        " [formGroup]="formSearch" (submit)="searchRequestByKeyword()">
+        <div class="flex flex-wrap gap-4 justify-between items-end">
+          <div class="lg:flex gap-4 contents">
+            <div class="w-full min-w-[200px] lg:max-w-[200px]">
+              <div class="custom-tablesubtitle gap-1">Type</div>
+              <p-dropdown formControlName="budgetTypeId" [style]="{ width: '100%', height: '2.875rem' }"
+                [options]="requestTypeOptions" optionValue="id" optionLabel="description" placeholder="Select"
+                appendTo="self" />
+            </div>
+            <div class="lg:w-auto w-full lg:min-w-[180px]">
+              <div class="custom-tablesubtitle gap-1">Year</div>
+              <p-calendar styleClass="custom-calendar-height w-full cursor-pointer" formControlName="year"
+                [showIcon]="true" [showOnFocus]="false" [showButtonBar]="false" [iconDisplay]="'input'"
+                [minDate]="minYear" [maxDate]="maxYear" view="year" dateFormat="yy" placeholder="Select"
+                (onSelect)="onYearChange($event)" (keypress)="allowOnlyNumbers($event)"
+                (input)="limitYearLength($event)">
+                <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
+                  <app-icon-calendar (click)="clickCallBack($event)"></app-icon-calendar>
+                </ng-template>
+                <ng-template pTemplate="input">
+                  <input #yearInput pInputText type="number" class="w-full" placeholder="Select" />
+                </ng-template>
+              </p-calendar>
+            </div>
+          </div>
+          <div class="flex flex-col w-full lg:w-auto justify-end items-end gap-4 min-[700px]:flex-row lg:gap-4">
+            <div class="lg:w-auto w-full">
+              <p-button [text]="true" severity="danger" styleClass="w-full justify-center custom-cleanButton"
+                (click)="searchClean()">
+                <app-icon-clean />
+                Clear
+              </p-button>
+            </div>
+            <div class="w-full text-center mt-4">
+              <p-button [text]="true" severity="danger" [outlined]="true"
+                styleClass="w-full justify-center custom-searchButton" (click)="searchRequestByKeyword()">
+                <app-icon-search-normal />
+                Search
+              </p-button>
+            </div>
+            <div
+              class="w-full lg:w-autotext-center mt-4 min-[700px]:pl-4 min-[700px]:border-l-2 min-[700px]:border-[#ECE3D9]">
+              <p-button styleClass="custom-addNewButton float-end  w-full justify-center"
+                (click)="validateStartRegistration()" [disabled]="
+                  !userPermissionService.hasPermission(
+                    'AdvanceRequest',
+                    'Create'
+                  )
+                ">
+                <app-icon-add-square [color]="'white'" />
+                Add
+              </p-button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="col-8"></div>
+  </div>
+</p-card>
+
+<br />
+
+<p-card>
+  <p-table #tb *ngIf="
+      userPermissionService.hasPermission('AdvanceRequest', 'View')
+    " responsiveLayout="stack" [breakpoint]="'960px'" [tableStyle]="{ 'min-width': '50rem' }"
+    styleClass="p-datatable-v2" [Paginator]="false" [lazy]="true" (onLazyLoad)="getAdvanceRequests($event)"
+    [value]="advanceRequests" [customSort]="true">
+    <ng-template pTemplate="header" let-item>
+      <tr class="custom-tablesubtitle">
+        Unit
+      </tr>
+      <tr>
+        <td class="font-table-subtitle py-4 px-3" colspan="5">
+          <div *ngIf="currentUser">
+            {{ currentUser.unitDescription }}
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <th pTooltip="Sort" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip"
+          pSortableColumn="budgetTypeDescription" style="width: 12%">
+          Type <p-sortIcon field="budgetTypeDescription" />
+        </th>
+        <th pTooltip="Sort" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" pSortableColumn="year"
+          style="width: 10%">
+          Year <p-sortIcon field="year" />
+        </th>
+        <th pTooltip="Sort" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip"
+          pSortableColumn="requestedMonths" style="width: 40%">
+          Months Requested <p-sortIcon field="requestedMonths" />
+        </th>
+        <th pTooltip="Sort" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" pSortableColumn="dateLastUpdate"
+          style="width: 15%">
+          Last Updated <p-sortIcon field="dateLastUpdate" />
+        </th>
+        <th style="width: 8%" class="text-center">Actions</th>
+      </tr>
+    </ng-template>
+
+
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.budgetTypeDescription }}</td>
+        <td>{{ item.year }}</td>
+        <td>{{ item.requestedMonths || '-' }}</td>
+        <td>{{ item.dateLastUpdate | date : "dd/MM/yyyy HH:mm" }}</td>
+        <td class="flex justify-center flex-wrap">
+          <p-button pTooltip="View" [text]="true" [rounded]="true" tooltipPosition="bottom"
+            tooltipStyleClass="custom-tooltip" styleClass="custom-tablebutton" (onClick)="
+              userPermissionService.hasPermission(
+                'AdvanceRequest',
+                'View'
+              ) && showViewModal();
+              getAdvanceRequestById(item.id)
+            " [disabled]="
+              !userPermissionService.hasPermission(
+                'AdvanceRequest',
+                'View'
+              )
+            ">
+            <app-icon-view />
+          </p-button>
+
+          <p-button pTooltip="Edit" [text]="true" [rounded]="true" tooltipPosition="bottom"
+            tooltipStyleClass="custom-tooltip" styleClass="custom-tablebutton" (onClick)="
+              userPermissionService.hasPermission(
+                'AdvanceRequest',
+                'Edit'
+              ) && showEditModal();
+              getAdvanceRequestById(item.id)
+            " [disabled]="
+              !userPermissionService.hasPermission(
+                'AdvanceRequest',
+                'Edit'
+              )
+            ">
+            <app-icon-edit2 />
+          </p-button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7">No results found</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<app-paginator [first]="first" [last]="last" [totalItems]="totalItems" [rows]="rows" [options]="options"
+  (rowsChange)="onRowsChange($event)" (pageChange)="getAdvanceRequests($event)"></app-paginator>
+
+<br />
+
+<p-dialog header="Advance Request" [modal]="true" [(visible)]="isVisibleConfirmChoice" [resizable]="false"
+  [draggable]="false" closable="false" [style]="{ width: '28rem' }" class="p-dialog-alert">
+  <p-header>
+    <div class="custom-dialog-header">
+      <div class="text-xl">Advance Request</div>
+      <div class="divButton">
+        <button type="button" pButton (click)="isVisibleConfirmChoice = false">
+          <app-icon-close-square />
+        </button>
+      </div>
+    </div>
+  </p-header>
+  <hr />
+  <div class="flex items-center gap-3 px-[1.125rem] py-[0.75rem]">
+    Will the Advance Request be “Monthly” or “Occasional”?
+  </div>
+  <hr />
+  <ng-template pTemplate="footer">
+    <div class="flex justify-center gap-2">
+      <p-button label="Monthly" severity="danger" [text]="true" (click)="isValidRegistrationRequestMonthly()"
+        styleClass="custom-confirm-yes">
+      </p-button>
+      <p-button label="Occasional" styleClass="custom-confirm-yes" (click)="isVisibleConfirmChoice = false"
+        disabled="true">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<app-add-edit-advance-request mode="add" [(isVisible)]="isVisibleNewModalMonthly" [newRequest]="newRequest"
+  [months]="requestMonthsNew" [currentYear]="currentYear" [newRequestFormatted]="newRequestFormatted"
+  (save)="confirmSave($event)" (cancel)="confirmCancel($event)" (checkboxChange)="onCheckboxChange($event)" />
+
+
+
+<app-add-edit-advance-request mode="edit" [(isVisible)]="isVisibleEditModalMonthly"
+  [advanceRequestDetail]="advanceRequestDetail" [months]="requestMonthsEdit" [currentYear]="currentYear"
+  [messageFormatted]="requestMessageFormatted" (save)="confirmSave($event)" (cancel)="confirmCancel($event)"
+  (checkboxChange)="onCheckboxChange($event)" />
+
+
+
+<app-add-edit-advance-request mode="view" [(isVisible)]="isVisibleViewModalMonthly"
+  [advanceRequestDetail]="advanceRequestDetail" [months]="requestMonthsEdit" [currentYear]="currentYear"
+  [unitDescription]="unitDescription" [isRequest]="true" />
+
+
+
+<p-dialog [header]="
+    confirmLabel === 'Add' ? 'Cancel Creation' : 'Cancel Editing'
+  " [modal]="true" [(visible)]="visibleCancelConfirm" [resizable]="false" [draggable]="false" closable="false"
+  [style]="{ width: '28rem' }" class="p-dialog-alert">
+  <hr />
+  <div class="flex items-center gap-3 px-[1.125rem] py-[0.75rem]">
+    {{
+    confirmLabel === "Add"
+    ? "Do you really want to cancel creation of the Request? All entered data will be lost."
+    : "Do you really want to cancel changes to the Request? All changed data will be lost."
+    }}
+  </div>
+  <hr />
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2">
+      <p-button label="No, keep data" severity="danger" [text]="true" (click)="visibleCancelConfirm = false"
+        styleClass="custom-confirm-no">
+      </p-button>
+      <p-button [label]="
+          confirmLabel === 'Add'
+            ? 'Yes, cancel creation'
+            : 'Yes, cancel editing'
+        " styleClass="custom-confirm-yes" (click)="
+          closeCancel(confirmLabel === 'Add' ? 'Add' : 'Edit');
+          visibleCancelConfirm = false
+        ">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [header]="
+    confirmLabel === 'Add' ? 'Save Request' : 'Save Edit'
+  " modal="true" [(visible)]="visibleSaveConfirm" baseZIndex="1" resizable="false" draggable="false" closable="false"
+  closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <hr />
+  <main>
+    @if (confirmLabel === 'Add') { Do you really want to save a Request? }
+    @else { Do you really want to edit the Request? }
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="Not now" severity="danger" text="true" (click)="visibleSaveConfirm = false"
+      styleClass="custom-confirm-no"></p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="
+        confirmLabel == 'Add' ? saveNewRequest() : saveEditRequest()
+      ">
+      @if (confirmLabel === 'Add') { Yes, save } @else { Yes, edit }
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+@if(dynamicMessage){
+<p-dialog header="Warning" [modal]="true" [visible]="true" [resizable]="false" [draggable]="false" closable="false"
+  [style]="{ width: '28rem' }" class="p-dialog-alert">
+  <p-header>
+    <div class="custom-dialog-header">
+      <div class="text-xl">Warning</div>
+      <div class="divButton">
+        <button type="button" pButton (click)="closeMessageModal()">
+          <app-icon-close-square />
+        </button>
+      </div>
+    </div>
+  </p-header>
+
+  <hr />
+  <div class="flex items-center gap-3 py-[0.75rem]">
+    <ul [innerHTML]="dynamicMessageFormatted" class="conteudo-html pl-2 px-4"></ul>
+  </div>
+  <hr />
+  <ng-template pTemplate="footer">
+    <div class="flex justify-center gap-2">
+      <p-button [rounded]="true" label="Ok" severity="danger" [text]="true" (click)="closeMessageModal()"
+        styleClass="custom-closesquare">
+        <app-icon-close-square size="24" color="#0F4C5C" />
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+}

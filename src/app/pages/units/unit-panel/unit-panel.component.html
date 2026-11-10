@@ -1,0 +1,14 @@
+<p-tabView [(activeIndex)]="activeIndex" (activeIndexChange)="onTabChange($event)">
+  <p-tabPanel header="Unit">
+    <app-unit *ngIf="activeIndex == 0"></app-unit>
+  </p-tabPanel>
+  <p-tabPanel header="User Association" [disabled]="mode == 'new'">
+    <app-user-link *ngIf="activeIndex == 1"></app-user-link>
+  </p-tabPanel>
+  <p-tabPanel header="Material & Service Association" [disabled]="mode == 'new'">
+    <app-material-service-unit *ngIf="activeIndex == 2"></app-material-service-unit>
+  </p-tabPanel>
+  <p-tabPanel header="Processes" [disabled]="mode == 'new'">
+    <app-process *ngIf="activeIndex == 3"></app-process>
+  </p-tabPanel>
+</p-tabView>

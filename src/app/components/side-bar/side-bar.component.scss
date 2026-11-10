@@ -73,6 +73,7 @@ ul {
   border-radius: 14px;
 
   background: transparent;
+  pointer-events: auto;
 
   transition:
     width 0.3s ease,
@@ -83,7 +84,7 @@ ul {
 
   &.hover-expanded {
     width: 268px;
-    z-index: 100;
+    z-index: 9999 !important;
     transform: translateX(18px);
     background-color: #dee2e3;
     transition:
@@ -105,6 +106,7 @@ ul {
   }
 
   &:hover {
+    z-index: 9999 !important;
     background: rgba(221, 225, 226, 0.966);
     border-color: rgba(15, 117, 143, 0.1);
     border-radius: 14px;
@@ -215,6 +217,21 @@ ng-container {
   width: 400px;
   overflow-y: auto;
   overflow-x: hidden;
+  
+  pointer-events: none;
+  transition: width 0.3s ease;
+}
+
+@media (min-width: 1024px) {
+  aside.collapsed .sidebar-nav-scroll {
+    width: 96px;
+    transition: width 0.3s ease;
+  }
+
+  aside.collapsed .sidebar-nav-scroll.hovering {
+    width: 400px;
+    transition: width 0.1s ease;
+  }
 }
 
 .nav-sub-item-button {

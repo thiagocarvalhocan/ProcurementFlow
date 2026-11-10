@@ -1,6 +1,6 @@
 @use "sass:math";
 
-// core
+
 .p-metergroup {
     display: flex;
 }
@@ -38,7 +38,7 @@
     display: inline-flex;
 }
 
-// theme
+
 .p-metergroup {
     gap: $inlineSpacing * 2;
 

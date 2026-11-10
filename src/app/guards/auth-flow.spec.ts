@@ -43,10 +43,7 @@ function runGuard(guard: CanActivateFn, url: string): boolean {
   ) as boolean;
 }
 
-/**
- * Acceptance checks for Phase 1B: the login form, the route guards and the
- * toolbar identity/logout wiring all run against the offline mock session.
- */
+
 describe('Phase 1B - mock login, guards and toolbar', () => {
   let router: Router;
   let authService: AuthService;

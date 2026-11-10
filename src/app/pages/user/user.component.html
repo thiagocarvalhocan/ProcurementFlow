@@ -1,9 +1,5 @@
 <p-toast></p-toast>
 
-<div class="ms-4 mb-4 header">
-  <strong class="text-[1.5rem]">System Users</strong>
-</div>
-
 <p-card>
   <div class="flex flex-col lg:flex-row md:justify-between gap-4">
     <div class="flex flex-col md:flex-row gap-4 w-full">
@@ -126,7 +122,7 @@
   (rowsChange)="onRowsChange($event)" (pageChange)="getUsers($event)"></app-paginator>
 
 <p-dialog header="" modal="true" [(visible)]="isUserModalVisible" baseZIndex="0" resizable="false" draggable="false"
-  closable="false" closeOnEscape="false" [style]="{ width: '80%', overflow: 'hidden' }" class="p-dialog-v2">
+  closable="false" closeOnEscape="false" [style]="{ overflow: 'hidden' }" styleClass="p-dialog-v2 w-[95%] sm:w-[80%] md:w-[70%]">
   <p-header>
     <div class="text-xl">{{ getModalTitle() }}</div>
     <div class="container-button-close">
@@ -297,7 +293,7 @@
 <p-dialog header="" modal="true" [(visible)]="isDisableUserModalVisibility" resizable="false" draggable="false"
   closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
   <p-header>
-    <div class="text-xl">Deactivate user</div>
+    <div class="text-xl">Deactivate User</div>
     <div class="container-button-close">
       <button type="button" pButton (click)="closeDisableUserModal()">
         <app-icon-close-square />

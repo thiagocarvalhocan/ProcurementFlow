@@ -9,6 +9,11 @@ import { loginGuard } from './guards/login.guard';
 import { NoPermissionComponent } from './pages/no-permission/no-permission.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { UserComponent } from './pages/user/user.component';
+import { RequestMessageComponentt } from './pages/request-message/request-message.component';
+import { AdvanceRequestComponent } from './pages/advance-request/advance-request.component';
+import { UnitPanelComponent } from './pages/units/unit-panel/unit-panel.component';
+import { unitResolver } from './resolver/unidade.resolver';
+import { UnitsComponent } from './pages/units/units.component';
 export const routes: Routes = [
   {
     path: '',
@@ -29,6 +34,42 @@ export const routes: Routes = [
         path: 'profiles',
         component: ProfileComponent,
         title: 'Profiles',
+      },
+      {
+        path: 'advance-request',
+        component: AdvanceRequestComponent,
+        title: 'Advance Request'
+      },
+      {
+        path: 'administration',
+        children: [
+          {
+            path: 'request-messages',
+            component: RequestMessageComponentt,
+            title: 'Request Message'
+          },
+          {
+            path: 'units/:idUnit/view',
+            component: UnitPanelComponent,
+            title: 'View Unit',
+            resolve: { unidade: unitResolver }
+          },{
+            path: 'units/:idUnit/edit',
+            component: UnitPanelComponent,
+            title: 'Edit Unit',
+            resolve: { unidade: unitResolver }
+          },
+          {
+            path: 'units/new',
+            component: UnitPanelComponent,
+            title: 'Add Unit'
+          },
+          {
+            path: 'units',
+            component: UnitsComponent,
+            title: 'Units'
+          },
+        ]
       },
     ],
   },

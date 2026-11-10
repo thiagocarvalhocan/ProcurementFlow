@@ -1,0 +1,310 @@
+﻿<p-toast></p-toast>
+
+<div class="ms-4 mb-4 header">
+  <strong class="text-[1.5rem]">Material and Service Relationship</strong>
+</div>
+@if(mode != 'view'){
+<p-card>
+  <div class="grid grid-cols-12">
+    <div class="col-span-3"></div>
+    <div class="col-span-9">
+      <p-button label="Link" styleClass="custom-saveButton ms-4 float-end" (click)="openModalLinkMaterialService()"
+        [disabled]="
+        !(
+          userPermissionService.hasPermission('MaterialsServicesUnits', 'Edit')
+          || isAccountantSameUnit()              
+        )">
+        <app-icon-link color="white" size="24px" />
+      </p-button>
+    </div>
+  </div>
+</p-card>
+}
+<br />
+
+<p-card>
+  <p-table #tb (onLazyLoad)="getLinks($event, 'onLazyLoad')" [lazy]="true" [value]="materialServiceLinks"
+    [paginator]="false" *ngIf="
+      userPermissionService.hasPermission(
+        'MaterialsServicesUnits',
+        'View'
+      )
+    ">
+    <ng-template pTemplate="header">
+      <tr>
+        @for (item of headerMaterialServiceLinksTable; track item.title) { @if (item.key) {
+        <th pTooltip="Sort" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [pSortableColumn]="item.key"
+          class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}<p-sortIcon [field]="item.key" />
+          </div>
+        </th>
+        } @else {
+        <th class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}
+          </div>
+        </th>
+        } }
+        <th class="text-center min-w-[60px] p-2">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>
+          <span class="p-column-title"></span>{{ item.descriptionTypeMaterial }}
+        </td>
+        <td><span class="p-column-title"></span>{{ item.descriptionGroup }}</td>
+        <td class="max-w-[450px] break-words"><span class="p-column-title"></span>{{ item.description }}</td>
+        <td>
+          <span class="p-column-title"></span>
+          @if (item.startDate && item.endDate) {
+          {{ (item.startDate | date : "dd/MM/yyyy") ?? "-" }} a
+          {{ (item.endDate | date : "dd/MM/yyyy") ?? "-" }}
+          } @else {
+          <label>-</label>
+          }
+        </td>
+        <td>
+          <span class="p-column-title"></span>{{ item.active ? "Active" : "Inactive" }}
+        </td>
+        <td class="flex items-center justify-center">
+          <p-button pTooltip="View" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [text]="true"
+            [rounded]="true" (click)="openModalView(item)" [disabled]="
+            !(
+              userPermissionService.hasPermission('MaterialsServicesUnits', 'View')
+              || isAccountantSameUnit()              
+            )">
+            <app-icon-view></app-icon-view>
+          </p-button>
+
+          @if(mode != 'view'){
+          <p-button pTooltip="Unlink" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [text]="true"
+            [rounded]="true" (click)="openConfirmUnlink(item)" [disabled]="
+            !(
+              userPermissionService.hasPermission('MaterialsServicesUnits', 'Edit')
+              || isAccountantSameUnit()              
+            )">
+            <app-icon-unlink size="24px" color="#0F4C5C">
+            </app-icon-unlink>
+          </p-button>
+          }
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7">No records found</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<app-paginator [first]="firstMaterialServiceLinksTable" [last]="lastMaterialServiceLinksTable"
+  [totalItems]="totalItemsMaterialServiceLinksTable" [rows]="rowsMaterialServiceLinksTable"
+  [options]="optionsLinksTable" (rowsChange)="onRowsChange($event)" (pageChange)="getLinks($event)"></app-paginator>
+
+<p-dialog header="" modal="true" [(visible)]="isVisibleModalViewWarnings" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" class="p-dialog-v2" styleClass="w-[65%]">
+  <p-header>
+    <div class="">View Warnings of Material or Service</div>
+    <div class="container-button-close">
+      <button type="button" pButton (click)="isVisibleModalViewWarnings = false">
+        <app-icon-close-square />
+      </button>
+    </div>
+  </p-header>
+  <hr />
+  <main>
+    <form id="formWarning" [formGroup]="formWarning">
+      <div class="custom-warning">
+        <div class="grid grid-cols-1 gap-4 p-0">
+          @for(item of warnings; track item.alertTypeDescription){
+          @if(isWarningValid(item)){
+          <div class="col-span-1 items-center gap-4">
+            <label for="description" class="font-bold-body p-4">
+              {{ item.alertTypeDescription }}:
+            </label>
+            <br />
+            @for (warning of item.alerts; track warning) {
+            <li class="pl-6">
+              {{ warning }}
+            </li>
+            }
+          </div>
+
+          }
+          }
+        </div>
+      </div>
+    </form>
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="Close" severity="danger" text="true" styleClass="custom-closesquare"
+      (click)="isVisibleModalViewWarnings = false">
+      <app-icon-close-square size="24" color="#0F4C5C" />
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="" modal="true" [(visible)]="isVisibleModalLinkMaterialService" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" class="p-dialog-v2" styleClass="w-[65%] min-h-[34.375rem]">
+  <p-header>
+    <div class="">Link Materials and Services</div>
+    <div class="container-button-close">
+      <button type="button" pButton (click)="openCancelConfirmModal()">
+        <app-icon-close-square />
+      </button>
+    </div>
+  </p-header>
+  <hr />
+  <main>
+    <form [formGroup]="formSearch" (submit)="search()">
+      <div class="flex flex-wrap gap-4 justify-between items-end">
+        <div class="lg:flex gap-4 contents">
+          <div class="lg:w-auto w-full">
+            <div class="custom-tablesubtitle gap-1">
+              Material or Service Description
+            </div>
+            <input class="w-full" type="text" pInputText placeholder="Enter value" maxlength="300"
+              formControlName="Description" />
+          </div>
+        </div>
+        <div class="flex flex-col w-full justify-end items-end gap-4 min-[700px]:flex-row lg:w-auto lg:gap-4">
+          <div class="lg:w-auto w-full text-center mt-4">
+            <p-button [text]="true" severity="danger" [outlined]="true"
+              styleClass="custom-searchButton w-full justify-center" (click)="search()" [disabled]="  !(
+                userPermissionService.hasPermission('MaterialsServicesUnits', 'Edit')
+                || isAccountantSameUnit()              
+              )">
+              <app-icon-search-normal />
+              Pesquisar
+            </p-button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <br />
+    <p-table #tbModal styleClass="custom-table-modal mt-4 p-4" [lazy]="true" [value]="materials" [paginator]="false"
+      (onLazyLoad)="search($event)" [(selection)]="selectedMaterials" dataKey="id" *ngIf="
+        userPermissionService.hasPermission(
+          'MaterialsServicesUnits',
+          'View'
+        )
+      ">
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="items-center p-2 w-3">
+            <div class="custom-checkbox">
+              <p-tableHeaderCheckbox />
+            </div>
+          </th>
+          @for (item of headersModalLinkMaterialService; track item.title) {
+          @if (item.key) {
+          <th [pSortableColumn]="item.key" class="items-center p-2 tooltip-wrapper">
+            <div class="flex items-center w-full justify-between">
+              {{ item.title }}<p-sortIcon [field]="item.key" />
+            </div>
+          </th>
+          } @else {
+          <th class="items-center p-2">
+            <div class="flex items-center w-full justify-between">
+              {{ item.title }}
+            </div>
+          </th>
+          } }
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>
+            <p-tableCheckbox class="custom-checkbox pl-[2px]" [value]="item" />
+          </td>
+          <td>
+            <span class="p-column-title"></span>{{ item.descriptionTypeMaterial }}
+          </td>
+          <td><span class="p-column-title"></span>{{ item.descriptionGroup }}</td>
+          <td><span class="p-column-title"></span>{{ item.description }}</td>
+          <td>
+            <span class="p-column-title"></span>
+            @if (item.startDate && item.endDate) {
+            {{ (item.startDate | date : "dd/MM/yyyy") ?? "-" }} a
+            {{ (item.endDate | date : "dd/MM/yyyy") ?? "-" }}
+            } @else {
+            <label>-</label>
+            }
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7">No records found</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="Cancel" severity="danger" text="true" styleClass="custom-closesquare"
+      (click)="openCancelConfirmModal()">
+      <app-icon-close-square size="24" color="#0F4C5C" />
+    </p-button>
+    <p-button styleClass="custom-saveButton" (click)="openConfirmSaveLink()">
+      <app-icon-save size="24" color="#ffffff" /> Save
+    </p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog modal="true" [(visible)]="isVisibleCancelConfirm" resizable="false" draggable="false" closable="false"
+  closeOnEscape="false" [style]="{ 'max-width': '460px', 'min-width': '420px' }" class="p-dialog-v2">
+  <p-header>
+    <div class="">Cancel Link</div>
+  </p-header>
+  <hr />
+  <main>
+    <p>Do you really want to cancel the link creation?</p>
+    <p>All entered data will be lost.</p>
+  </main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="No, keep data" severity="danger" text="true" (click)="isVisibleCancelConfirm = false"
+      styleClass="custom-confirm-no">
+    </p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="closeCancelConfirmModal()">
+      Yes, cancel
+    </p-button>
+  </p-footer>
+</p-dialog>
+<p-dialog header="" modal="true" [(visible)]="isVisibleSaveConfirm" baseZIndex="1" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <p-header>
+    <div class="">Save Link</div>
+  </p-header>
+  <hr />
+  <main>Do you really want to save this link?</main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="Not now" severity="danger" text="true" (click)="closeConfirmSaveLink()"
+      styleClass="custom-confirm-no"></p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="saveLink()">
+      Yes, save
+    </p-button>
+  </p-footer>
+</p-dialog>
+<p-dialog header="" modal="true" [(visible)]="isVisibleModalUnlink" baseZIndex="1" resizable="false" draggable="false"
+  closable="false" closeOnEscape="false" [style]="{ width: '28rem' }" class="p-dialog-v2">
+  <p-header>
+    <div class="">Unlink</div>
+  </p-header>
+  <hr />
+  <main>Do you really want to unlink the record?</main>
+  <hr />
+  <p-footer class="flex justify-end gap-4">
+    <p-button label="No, keep link" severity="danger" text="true" (click)="closeConfirmUnlink()"
+      styleClass="custom-confirm-no"></p-button>
+    <p-button styleClass="custom-confirm-yes" (click)="unlink()">
+      Yes, unlink
+    </p-button>
+  </p-footer>
+</p-dialog>

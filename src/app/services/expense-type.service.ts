@@ -11,7 +11,7 @@ export class ExpenseTypeService {
 
   constructor(private http: HttpClient) {}
 
-  getTipo() {
+  getType() {
     return this.http.get<DropdownSelect[]>(this.uri);
   }
 }

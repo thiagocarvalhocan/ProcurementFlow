@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 
 interface NavItem {
   route?: string;
@@ -16,11 +16,18 @@ export class SidebarService {
   isExpanded$ = this._isExpanded.asObservable();
   items: NavItem[] = [];
 
+  private _collapseHover = new Subject<void>();
+  collapseHover$ = this._collapseHover.asObservable();
+
   toggleSidebar() {
     this._isExpanded.next(!this._isExpanded.value);
   }
 
   closeSidebar() {
     this._isExpanded.next(false);
+  }
+
+  requestCollapseHover() {
+    this._collapseHover.next();
   }
 }

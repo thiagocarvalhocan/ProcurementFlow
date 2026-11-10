@@ -86,7 +86,7 @@ object {
 
 
 
-// FILE UPLOAD
+
 .custom-upload {
   overflow: hidden;
   .p-fileupload {
@@ -207,7 +207,7 @@ object {
   display: none !important;
 }
 
-// DATEPICKER
+
 .p-datepicker-trigger.p-button-icon-only {
   background: #e4e7eb !important;
   border: 1px solid #C9D5DA !important;
@@ -222,7 +222,7 @@ object {
   height: 2.875rem;
 }
 
-// DROPDOWN
+
 .p-dropdown:not(.p-disabled).p-focus {
   outline: 1px solid #0F4C5C;
 }
@@ -242,7 +242,7 @@ object {
   word-break: break-word;
 }
 
-// CHECKBOX
+
 .custom-input-checkbox {
   width: 20px;
   height: 20px;
@@ -266,7 +266,7 @@ object {
   outline: none;
 }
 
-// INPUT SWITCH
+
 .custom-inputswitch.p-inputswitch-checked .p-inputswitch-slider {
   background: #0F4C5C !important;
 
@@ -279,7 +279,7 @@ object {
 
 
 
-// TOOLTIP
+
 .tooltip-custom {
   .p-tooltip-text,
   .p-tooltip-arrow {
@@ -341,7 +341,7 @@ object {
   border-color: transparent #E8F1F4 transparent transparent !important;
 }
 
-//HR 
+
 .p-confirm-dialog hr {
   border-color: #D6D5D5 !important;
 }
@@ -351,7 +351,7 @@ object {
   width: 100%;
 }
 
-// BUTTON
+
 .font-button-large {
   font-family: "Roboto", sans-serif;
   font-weight: 400;
@@ -443,9 +443,9 @@ object {
 
 }
 .p-calendar-w-btn .p-datepicker-trigger .p-icon {
-  //color:transparent;
-  //background-image: url(../public/calendar.svg);
- // width: 1rem;
+
+
+
 }
 
 .custom-confirm-yes {
@@ -464,7 +464,7 @@ object {
 
 
 
-// LABEL
+
 .font-label-model {
   font-family: "Roboto", sans-serif;
   font-weight: 600;
@@ -475,7 +475,7 @@ object {
 
 
 
-// FONTS
+
 .font-title-30-bold {
   font-family: "Roboto", sans-serif;
   font-weight: 700;
@@ -656,7 +656,7 @@ object {
 
 
 
-// CARD
+
 .font-card-borda {
   font-family: "Roboto", sans-serif;
   font-weight: 700;
@@ -665,7 +665,7 @@ object {
   line-height: 1.318125rem;
 }
 
-// CARD: body
+
 .p-card .p-card-body {
   padding: 16px 24px 16px 24px;
 
@@ -674,7 +674,7 @@ object {
 
 
 
-// DIALOG
+
 .subtitle-modal {
   font-size: 1.25rem !important; 
   font-weight: 700 !important;
@@ -685,7 +685,7 @@ object {
   font-weight: 700 !important;
 }
 
-// DIALOG: header
+
 .p-dialog-v2 .p-dialog-header {
   font-family: "Roboto", sans-serif !important;
   font-weight: 700 !important;
@@ -717,7 +717,7 @@ object {
   color:#17242A !important;
 }
 
-// DIALOG: content
+
 .p-dialog-v2 .p-dialog-content {
   padding: 0 !important;
   background-color: #F5F7F8 !important;
@@ -735,7 +735,7 @@ object {
 
 
 
-//TABLE
+
 .custom-tablebutton {
   padding: 0.25rem !important;
 
@@ -811,7 +811,7 @@ object {
   border-bottom: #3F5058;
 }
 
-//  TABLE: transparent
+
 .p-datatable-transparent tr {
   background-color: transparent;
   border: none;
@@ -829,7 +829,7 @@ object {
   padding: 10px !important;
 }
 
-//  TABLE: dialog
+
 .p-dialog-v2 .p-datatable-thead > tr > th {
   padding: 8px 16px 12px 16px;
   border-color: #D6D5D5;
@@ -853,7 +853,7 @@ object {
   padding: 8px 16px 12px 10px;
 }
 
-// DIALOG (descontinuado)
+
 .p-dialog .p-dialog-header {
   padding: 1.125rem 1.125rem 1.125rem 1.125rem;
   border-color: #D6D5D5;
@@ -923,7 +923,7 @@ object {
   border-color: #E1E7EA;
 }
 
-//TABVIEW
+
 
 .p-tabview .p-tabview-nav{
   background: transparent;
@@ -956,7 +956,7 @@ object {
   background-color: #0F4C5C;
 }
 
-//MULTISELECT
+
 
 .p-multiselect-panel .p-multiselect-header .p-multiselect-close {
   color: #0F4C5C;
@@ -966,7 +966,7 @@ object {
   margin-bottom: 80px;
 }
 
-//EXPANDED CONTENT ROW
+
 .units-cell {
   max-height: 1.6em;
   overflow: hidden;
@@ -1009,7 +1009,7 @@ object {
   background-color: #F3F6F7;
 }
 
-//
+
 
 .p-radiobutton .p-radiobutton-box {
   border: 1px solid #667780;
@@ -1040,7 +1040,7 @@ object {
   border-color: #0F4C5C; 
 }
 
-/* Restore lists and indentation to keep the formatting of alerts and messages*/
+
 .conteudo-html ul,
 .conteudo-html ol {
   list-style: revert !important;
@@ -1067,7 +1067,7 @@ object {
   word-break: break-word;
 }
 
-/* Confirm Service */
+
 .custom-confirm-service .p-dialog-footer {
   display: flex;
   justify-content: flex-end;
@@ -1098,7 +1098,7 @@ object {
   backdrop-filter: blur(6px);
 }
 
-//STEPPER
+
 .custom-stepper.p-stepper .p-stepper-panels {
   background: transparent;
 }
@@ -1168,7 +1168,7 @@ object {
     background-color: #0F4C5C;
 }
 
-//STEPPER-ABA
+
 .custom-stepper-aba.p-stepper .p-stepper-panels {
   background: transparent;
   padding-top: 0;

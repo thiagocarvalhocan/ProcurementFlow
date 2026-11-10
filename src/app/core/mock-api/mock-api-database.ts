@@ -10,6 +10,19 @@ import {
   MockUser,
 } from './mock-api.models';
 
+function loadPersisted<T>(name: string, fallback: T): T {
+  if (typeof localStorage === 'undefined') return fallback;
+  try {
+    const raw = localStorage.getItem('procurementflow_mock_' + name);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed as unknown as T;
+    return fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 const ALL_ACTIONS: ActionCode[] = [
   ActionCode.View,
   ActionCode.Create,
@@ -21,14 +34,18 @@ const EDIT_ACTIONS: ActionCode[] = [ActionCode.View, ActionCode.Edit];
 const buildActions = (codes: ActionCode[]): FeatureAction[] =>
   codes.map((code, index) => ({ id: index + 1, description: code, code }));
 
+
 /** Feature catalogue offered by the mock API. Every feature carries the 4 canonical actions. */
 export const MOCK_FEATURE_CATALOG: UserFeature[] = [
   { id: 1, name: 'User Management', code: FeatureCode.Users, actions: buildActions(ALL_ACTIONS) },
   { id: 2, name: 'Profile Management', code: FeatureCode.Profiles, actions: buildActions(ALL_ACTIONS) },
   { id: 3, name: 'Unit Management', code: FeatureCode.Units, actions: buildActions(ALL_ACTIONS) },
+  { id: 4, name: 'Advance Request', code: FeatureCode.AdvanceRequest, actions: buildActions(ALL_ACTIONS) },
+  { id: 5, name: 'Request Message', code: FeatureCode.RequestMessage, actions: buildActions(ALL_ACTIONS) },
 ];
 
 type FeatureGrant = { featureId: number; actions: string[] };
+
 
 /** MOCK seed builder: stores every catalog feature with its granted (checked) action state. */
 const grantFeatures = (grants: FeatureGrant[]): MockProfileFeature[] =>
@@ -56,11 +73,13 @@ export const MOCK_UNITS: MockUnit[] = [
   { id: 1005800, code: 'U-006', name: 'Legacy Unit (inactive)', regionOfficeId: 5, regionOfficeName: '05th Regional Office', isActive: false },
 ];
 
-export const MOCK_PROFILES: MockProfile[] = [
+const SEED_PROFILES: MockProfile[] = [
   { id: 1, name: 'Super Administrator', description: 'Full access to every feature of the system', accessDeniedEmail: 'support@procurementflow.demo', allowEditing: false, features: grantFeatures([
       { featureId: 1, actions: ALL_ACTIONS },
       { featureId: 2, actions: ALL_ACTIONS },
       { featureId: 3, actions: ALL_ACTIONS },
+      { featureId: 4, actions: ALL_ACTIONS },
+      { featureId: 5, actions: ALL_ACTIONS },
     ]), createdAt: '2024-01-10T09:00:00Z', updatedAt: '2024-05-02T14:30:00Z' },
   { id: 2, name: 'Procurement Manager', description: 'Manages users and reviews advance requests', accessDeniedEmail: 'support@procurementflow.demo', allowEditing: true, features: grantFeatures([
       { featureId: 1, actions: ALL_ACTIONS },
@@ -77,6 +96,8 @@ export const MOCK_PROFILES: MockProfile[] = [
       { featureId: 1, actions: [ActionCode.View] },
     ]), createdAt: '2024-04-22T13:25:00Z', updatedAt: '2024-06-15T15:45:00Z' },
 ];
+
+export let MOCK_PROFILES: MockProfile[] = loadPersisted('profiles_v1', SEED_PROFILES);
 
 const profileSummary = (profile: MockProfile) => ({
   id: profile.id,
@@ -125,14 +146,17 @@ const generatedUsers: MockUser[] = FIRST_NAMES.map((firstName, index) => {
   };
 });
 
-/** Mutable in-memory collection used by the mock API handlers. */
-export const MOCK_USERS: MockUser[] = [...authUsers, ...generatedUsers];
 
-export const MOCK_EVENTS: MockEntityEvent[] = [
+/** Mutable in-memory collection used by the mock API handlers. */
+const SEED_USERS: MockUser[] = [...authUsers, ...generatedUsers];
+export let MOCK_USERS: MockUser[] = loadPersisted('users_v1', SEED_USERS);
+
+const SEED_EVENTS: MockEntityEvent[] = [
   { id: 1, entityName: 'User', entityId: 1, action: 'Record created', userName: 'System Seed', date: '2024-01-15T08:00:00Z' },
   { id: 2, entityName: 'User', entityId: 1, action: 'Profile assigned: Super Administrator', userName: 'Alice Administrator', date: '2024-02-03T10:12:00Z' },
   { id: 3, entityName: 'User', entityId: 1, action: 'Record updated', userName: 'Alice Administrator', date: '2024-06-20T12:00:00Z' },
 ];
+export let MOCK_EVENTS: MockEntityEvent[] = loadPersisted('events_v1', SEED_EVENTS);
 
 export function nextMockId(collection: { id: number }[]): number {
   return collection.reduce((max, item) => Math.max(max, item.id), 0) + 1;

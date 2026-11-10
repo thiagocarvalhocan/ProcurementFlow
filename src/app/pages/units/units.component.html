@@ -1,0 +1,123 @@
+<p-toast></p-toast>
+<p-card>
+  <div>
+    <div>
+      <form [formGroup]="formSearch" (submit)="searchUnits()">
+        <div class="flex flex-col justify-between min-[1100px]:flex-row gap-1">
+          <div class="flex flex-col gap-2 md:flex-row lg:gap-4 mb-4 min-[1100px]:mb-0">
+            <div>
+              <div class="custom-tablesubtitle gap-1">Unit SOF</div>
+              <input class="w-full" formControlName="sofUnitDescription" type="text" pInputText
+                placeholder="Enter value" maxlength="100" (keydown.enter)="searchUnits()" />
+            </div>
+            <div>
+              <div class="custom-tablesubtitle gap-1">Process Main</div>
+              <input class="w-full" formControlName="processNumber" type="text" pInputText placeholder="Enter value"
+                [ngModel]="processNumberVisual" (ngModelChange)="onProcessChange($event)"
+                (keydown.enter)="searchUnits()" />
+            </div>
+          </div>
+          <div class="flex flex-col w-full justify-end gap-4 items-end min-[646px]:flex-row lg:flex lg:w-auto lg:gap-4">
+            <div class="lg:w-auto w-full">
+              <p-button [text]="true" severity="danger" styleClass="custom-cleanButton w-full justify-center"
+                (click)="searchClean()">
+                <app-icon-clean />
+                Clear
+              </p-button>
+            </div>
+            <div class="lg:w-auto w-full text-center mt-4">
+              <p-button [text]="true" severity="danger" [outlined]="true"
+                styleClass="custom-searchButton w-full justify-center" (click)="searchUnits()"
+                [disabled]="!userPermissionService.hasPermission('Units', 'View')">
+                <app-icon-search-normal />
+                Search
+              </p-button>
+            </div>
+            <div
+              class="w-full text-center mt-4 min-[700px]:pl-4 min-[700px]:border-l-2 min-[700px]:border-[#ECE3D9] lg:w-auto">
+              <p-button styleClass="custom-addNewButton float-end w-full justify-center" (onClick)="addUnit()"
+                [disabled]="!userPermissionService.hasPermission('Units', 'Create')">
+                <app-icon-add-square [color]="'white'" />
+                Add
+              </p-button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</p-card>
+
+<br />
+
+<p-card>
+  <p-table #tb *ngIf="userPermissionService.hasPermission('Units', 'View')" responsiveLayout="stack"
+    [breakpoint]="'960px'" [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="searchUnits($event)" [lazy]="true"
+    [value]="units" [paginator]="false" [rows]="rows" [first]="first" [totalRecords]="totalItems"
+    [rowsPerPageOptions]="[10, 20, 30, 40, 50]" [customSort]="true">
+    <ng-template pTemplate="header">
+      <tr>
+        @for (item of headersTableUnits; track item.title) { @if (item.key) {
+        <th pTooltip="Sort" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" [pSortableColumn]="item.key"
+          class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}<p-sortIcon [field]="item.key" />
+          </div>
+        </th>
+        } @else {
+        <th class="items-center p-2">
+          <div class="flex items-center w-full justify-between">
+            {{ item.title }}
+          </div>
+        </th>
+        } }
+        <th class="text-center min-w-[60px] p-2">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-unit>
+      <tr>
+        <td>{{ unit.id }}</td>
+        <td>{{ unit.sofUnitDescription }}</td>
+        <td>{{ unit.responsibleUserName }}</td>
+        <td>{{ unit.processNumber | processNumber }}</td>
+        <td class="flex justify-center items-center">
+          <p-button pTooltip="View" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" text="true"
+            styleClass="custom-tablebutton" (click)="openViewEditUnit('view', unit)"
+            [disabled]="!userPermissionService.hasPermission('Units', 'View')">
+            <app-icon-view size="24" />
+          </p-button>
+
+          <p-button pTooltip="Edit Unit" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" text="true"
+            styleClass="custom-tablebutton" (click)="openViewEditUnit('edit', unit)"
+            [disabled]="!userPermissionService.hasPermission('Units', 'Edit') || unit.blockActions">
+            <app-icon-unit size="24" color="#004999" />
+          </p-button>
+          <p-button pTooltip="Edit Relação de Materials e Serviços" tooltipPosition="bottom"
+            tooltipStyleClass="custom-tooltip min-w-[255px]" text="true" styleClass="custom-tablebutton"
+            (click)="openViewEditUnit('editMaterialsServicesUnit', unit)"
+            [disabled]="!userPermissionService.hasPermission('Units', 'Edit') || unit.blockActions">
+            <app-icon-materials-services size="30" color="#6F42C1" />
+          </p-button>
+
+          <p-button pTooltip="Edit Processes" tooltipPosition="bottom" tooltipStyleClass="custom-tooltip" text="true"
+            styleClass="custom-tablebutton" (click)="openViewEditUnit('editProcess', unit)"
+            [disabled]="!userPermissionService.hasPermission('Units', 'Edit') || unit.blockActions">
+            <app-icon-processes size="26" color="#001E39" />
+          </p-button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="footer" let-users> </ng-template>
+    <ng-template pTemplate="paginatorleft">
+      <span>{{ totalItems }} items</span>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7">No records found</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<app-paginator [first]="first" [last]="last" [totalItems]="totalItems" [rows]="rows" [options]="options"
+  (rowsChange)="onRowsChange($event)" (pageChange)="searchUnits($event)"></app-paginator>

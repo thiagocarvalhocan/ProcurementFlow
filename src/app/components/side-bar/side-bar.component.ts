@@ -45,6 +45,8 @@ export class SideBarComponent implements OnInit {
 
   activeRoute?: string = '/';
   isSubmenuUnitsActive: boolean = false;
+  isSubMenuOpen: boolean = false;
+  activeSubMenuPanel: any = null;
   navItems = [] as NavItem[];
   isExpanded: boolean = false;
   hoveredItemIndex: number | null = null;
@@ -86,6 +88,10 @@ export class SideBarComponent implements OnInit {
       (isExpanded) => (this.isExpanded = isExpanded)
     );
 
+    this.sidebarService.collapseHover$.subscribe(() => {
+      this.hoveredItemIndex = null;
+    });
+
     if (this.activeRoute === '/') {
       this.setRouteActive('/');
     }
@@ -112,6 +118,20 @@ export class SideBarComponent implements OnInit {
         this.isExpanded = false;
         this.toggleSidebar();
     }
+  }
+
+  openSubMenu(event: Event, panel: any): void {
+    this.activeSubMenuPanel = panel;
+    panel.toggle(event);
+    this.isSubMenuOpen = true;
+  }
+
+  closeSubMenu(): void {
+    if (this.activeSubMenuPanel) {
+      this.activeSubMenuPanel.hide();
+      this.activeSubMenuPanel = null;
+    }
+    this.isSubMenuOpen = false;
   }
 
   toggleSidebar() {

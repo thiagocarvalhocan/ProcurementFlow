@@ -8,6 +8,6 @@ import { Component, Input } from '@angular/core';
   styleUrl: './icon-arrowback.component.scss'
 })
 export class IconArrowbackComponent {
-  @Input() color: string = '#000000';
+  @Input() color:  string = 'currentColor';
   @Input() size: string = '16px';
 }

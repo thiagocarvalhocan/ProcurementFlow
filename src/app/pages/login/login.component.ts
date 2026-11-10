@@ -26,7 +26,7 @@ import {
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-  /** Accounts published by the offline fake API. */
+  
   readonly accounts = MOCK_ACCOUNTS;
   readonly loginForm: FormGroup;
 

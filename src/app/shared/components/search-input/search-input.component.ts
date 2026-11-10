@@ -34,7 +34,7 @@ export class SearchInputComponent {
       )
       .subscribe(value => {
         const isEmpty = !value || value.trim().length === 0;
-        const hasMinLength = value.length >= 3;
+        const hasMinLength = value.length >= 1;
 
         if (isEmpty || hasMinLength) {
           this.search.emit();

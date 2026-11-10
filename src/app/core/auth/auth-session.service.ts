@@ -4,13 +4,7 @@ import { environment } from '../../../environments/environment';
 import { AuthSession } from './models/auth-session';
 import { AuthenticatedUser } from './models/authenticated-user';
 
-/**
- * Single owner of the authenticated session.
- * The session is kept in memory and mirrored into sessionStorage, so a
- * page reload keeps the user logged in for the current browser tab.
- * Reading the session never creates a user: it returns null when there is
- * no valid session stored.
- */
+
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
   private readonly storageKey = environment.auth.sessionKey;

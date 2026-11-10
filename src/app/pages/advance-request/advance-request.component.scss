@@ -1,0 +1,25 @@
+.aviso {
+    background-color: #FFF0F0;
+}
+
+.disabled {
+    color:#858796;
+}
+
+.checkbox-grid {
+  display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem; 
+}
+   
+.checkbox-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; 
+}
+   
+.checkbox-column p-checkbox {
+    margin-bottom: 1.5rem;
+}
+
+   
