@@ -79,4 +79,4 @@ Services) deployment per environment (Dev / Hom / Prod).
 **Thiago Gusmao de Carvalho** — Front-end Developer
 
 - GitHub: [@thiagocarvalhocan](https://github.com/thiagocarvalhocan/ProcurementFlow)
-- LinkedIn: [_(link)_](https://www.linkedin.com/in/thiago-carvalho-gusmao/)
+- LinkedIn: [linkedin.com/in/thiago-carvalho-gusmao](https://www.linkedin.com/in/thiago-carvalho-gusmao/)
